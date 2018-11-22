@@ -8,91 +8,121 @@
     npm install mongodb@2.2.5       --save
     npm install cookie-parser       --save
     npm install mysql               --save
-    -    npm install pg-promise          --save                              //Database ++                       https://www.enterprisedb.com/thank-you-downloading-postgresql?anid=1256151
-    -    cd ~mongo/bin && ./mongod       --dbpath ~mongo-database            //start the database
+
+    Run XAMPP or MAMP APACHE/MySQL
 */
 
 const express =                 require('express');                     //Include Express
 const ejs =                     require('ejs');                         //Include EJS
 const bodyParser =              require('body-parser');                 //body-parser
 const mysql =                   require('mysql');                       //mySQL
-const bcrypt =                  require('bcrypt');
-const session =                 require('express-session');
-const cookie =                  require('cookie-parser');
-const sql =                     require('mysql');                       //Database ++
-    const pgp =                     require('pg-promise');                  //Database ++
-    const {MongoClient, ObjectID} = require('mongodb');                     //MongoDB (deconstructed)
+const bcrypt =                  require('bcrypt');                      //Encryption
+const session =                 require('express-session');             //Sessions
+const cookie =                  require('cookie-parser');               //Cookie
+const sql =                     require('mysql');                       //Database 
 
 const app = express();
 
-var con = sql.createConnection({
+//==================================================================    //DATABASE    ++++++++++++++++++++++++++++++
+
+var con = sql.createConnection({                                        //Create Connection
   host: "localhost",
   user: "root",
-  password: "123",
-  database: "mainData"
+  password: "",
+  database: "maindata"
 });
 
-con.connect(function(err){
+con.connect(function(err){                                             //Connect
   if(err){
     console.log('Error connecting to Db');
     return;
   }
   console.log('Connection established');
-});
+}); 
 
-var urlencodedParser = bodyParser.urlencoded({ extended: false});   //Body-Parser
+//==================================================================    //DATABASE    ++++++++++++++++++++++++++++++
 
-app.use(express.static(__dirname + '/public'));                     //Add Public Folder (CSS)
-app.set('view engine', 'ejs');                                      //Set View Engine to EJS
+var urlencodedParser = bodyParser.urlencoded({ extended: false});       //Body-Parser
 
-var access = "";                                                    //Declare some Variables
+app.use(express.static(__dirname + '/public'));                         //Add Public Folder (CSS)
+app.set('view engine', 'ejs');                                          //Set View Engine to EJS
+
+var access = "";                                                        //Declare some Variables
+var username ="";
+var password ="";
 const saltRounds = 1;
 
-app.get("/", function(req, res) {                                   //Get Root
+app.get("/", function(req, res) {                                       //Get Root
     const name = "TREDX";
     access = "1";
     res.render("index", {name, access});
 })
 
-app.post("/1", urlencodedParser, function(req, res) {               //GET POST REQUEST
+app.post("/1", urlencodedParser, function(req, res) {                   //GET POST REQUEST
     access = "1";
     console.log(req.body);
     const errors = validate(req);
-
     if (errors.length == 0) {
-         bcrypt.hash(req.body.upsw, saltRounds, function(err, hash){ //Encrypt The Password with bcrypt
-             if (err){
+        bcrypt.hash(req.body.upsw, saltRounds, function(err, hash){    //Encrypt The Password with bcrypt
+            if (err){
                 return console.log('Unable to hash', err);
             }
             req.body.upsw = hash;
-            res.render("index-logged", {data: req.body});
+            username = req.body.uname;
+            password = req.body.upsw;
+
+            con.query('SELECT * from userdata WHERE name=' + '"' + username + '"', function(err, rows, fields) {      
+                if (!err) {
+                  console.log('The solution is: ', rows);
+                } else {
+                  console.log('Error while performing Query.');
+                }
+              });
+            res.render("main", {data: req.body});
         });
-//         db.collection('Users').insertOne({                          //Insert user into database
-//              username: req.body.uname,
-//              password: req.body.upsw                                 //Must figure out how to add HASHED password
-//         }, (err, result) => {
-//             if (err){
-//                  return console.log('Unable to insert', err);
-//             }
-//               console.log(JSON.stringify(result.ops, undefined, 2));  //Inserted documents
-//         });
-         } else {
-             console.log(errors);
+        } else {
+            console.log(errors);
      }
  })
-    
-function validate(req) {                                            //Validate Email And Password - Only checking if entered
+
+/////////////////////////////////////////////////////////////////////////////////////  REGISTER
+
+ app.get("/register.jpeg", function(req, res) {                                       //Get Root
+    res.render("register");
+})
+
+app.post("/register", urlencodedParser, function(req, res) {                                       //Get Root
+    console.log(req.body);
+    const errors = validateReg(req);
+    if (errors.length == 0) {
+        bcrypt.hash(req.body.upsw, saltRounds, function(err, hash){    //Encrypt The Password with bcrypt
+            if (err){
+                return console.log('Unable to hash', err);
+            }
+            req.body.upsw = hash;
+            username = req.body.uname;
+            firstname= req.body.ufname;
+            lastname = req.body.ulname;
+            password = req.body.upsw;
+            email    = req.body.uemail;
+            con.query('INSERT INTO userdata (name, surname, email, username, password) VALUES ("'+firstname+'", "'+lastname+'", "'+email+'", "'+username+'", "'+password+'")');
+        });
+    } else {
+        console.log(errors);
+    }
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+function validateReg(req) {                                                //Validate Email And Password - Only checking if entered
     const errors = [];
 
-    if (!req.body.uname) {                                          //uname
-        errors.push("Email Has Not Been Entered!");
-    }
-    if (!req.body.upsw) {                                           //upsw
-        errors.push("Password Has Not Been Entered!");
+    if (req.body.upsw != req.body.upsw2) {
+        errors.push("Passwords Do not match!");
     }
     return errors;
 }
 
-app.listen(8080, function() {                                       //Shh and listen!
+app.listen(8080, function() {                                           //Shh and listen!
     console.log("Listen on 8080");
 })

@@ -19,7 +19,13 @@ h2
     margin-top: 10px;
     text-align: center;
 }
-
+a
+{
+    color: #FF5864;
+    text-align: center;
+    font-family: Helvetica;
+    text-decoration: none;
+}
 ul 
 {
     list-style-type: none;
@@ -51,6 +57,17 @@ li a:hover
 }
 
 input[type="text"]
+{
+    font-family: Helvetica;
+    background-color: #FF7983;
+    color: white;
+    width: 50%;
+    height: auto;
+    text-align: center;
+    padding: 5px 5px;
+    font-size: 20px;
+}
+input[type="email"]
 {
     font-family: Helvetica;
     background-color: #FF7983;

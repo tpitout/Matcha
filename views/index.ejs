@@ -1,16 +1,16 @@
 <link href="/style.css" rel="stylesheet" type="text/css">
-<ul>
-    <li><a class="active" href="/">Home</a></li>
-    <li><a class="active" href="2">Login</a></li>
-  </ul>
+
+<div> 
+    <br><br>
+</div>
 
 <div class="title_1"> 
 <h1>LOG IN</h1>
 </div>
 
 <% if (access) {%>
-     <div class='title_1'>
-         <br>
+    <div class='title_1'>
+        <br>
             <form action="/1" method="post">
                 <h2>ENTER EMAIL</h2>
                 <input type="text" name="uname" pattern="[A-Za-z0-9]+" placeholder="ENTER YOUR NAME HERE" required>
@@ -18,5 +18,6 @@
                 <input type="password" name="upsw" placeholder="ENTER YOUR PASSWORD" required>
                 <input type="submit" value="submit">
             </form>
+            <a href="/register.jpeg">REGISTER</a>
     </div>
 <% }%>
