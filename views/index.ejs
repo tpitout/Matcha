@@ -13,9 +13,9 @@
          <br>
             <form action="/1" method="post">
                 <h2>ENTER EMAIL</h2>
-                <input type="text" name="uname" placeholder="ENTER YOUR NAME HERE">
+                <input type="text" name="uname" pattern="[A-Za-z0-9]+" placeholder="ENTER YOUR NAME HERE" required>
                 <h2>ENTER PASSWORD</h2>
-                <input type="password" name="upsw" placeholder="ENTER YOUR PASSWORD">
+                <input type="password" name="upsw" placeholder="ENTER YOUR PASSWORD" required>
                 <input type="submit" value="submit">
             </form>
     </div>

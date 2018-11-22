@@ -6,6 +6,8 @@
     npm install mysql               --save
     npm install express-validator   --save
     npm install bcrypt              --save
+
+    ./mongod --dbpath ~/mongo-data
 */
 
 const express =     require('express');                             //Include Express
@@ -26,6 +28,7 @@ app.set('view engine', 'ejs');                                      //Set View E
 //================================================================  DATABASE
                                                                  
 var form = "";                                                      //Declare some Variables
+const saltRounds = 1;
 
 app.get("/", function(req, res) {                                   //Get Root
     const name = "TREDX";
@@ -40,14 +43,16 @@ app.post("/1", urlencodedParser, function(req, res) {               //GET POST R
     const errors = validate(req);
 
     if (errors.length == 0) {
-        res.render("index-logged", {data: req.body});
+
+        bcrypt.hash(req.body.upsw, saltRounds, function(err, hash){ //Encrypt The Password with bcrypt
+            req.body.upsw = hash;
+            res.render("index-logged", {data: req.body});
+          });
+        
     } else {
         console.log(errors);
     }
 })
-
-// bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
-//   });
 
 function validate(req) {                                            //Validate Email And Password - Only checking if entered
     const errors = [];
