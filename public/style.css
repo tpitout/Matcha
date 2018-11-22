@@ -1,0 +1,90 @@
+h1
+{
+    font-family: Helvetica;
+    text-align: center;
+    color: #FF5864;
+}
+h2
+{
+    font-family: Helvetica;
+    text-align: center;
+    color: #FF5864;
+    font-weight: lighter;
+}
+.title_1
+{
+    width: 50%;
+    margin: auto;
+    border: 5px solid #FF5864;
+    margin-top: 10px;
+    text-align: center;
+}
+
+ul 
+{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #FF5864;
+    font-family: Helvetica;
+    font-size: 20px;
+}
+
+li 
+{
+    float: left;
+}
+
+li a 
+{
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover 
+{
+    background-color: #E54F5A;
+}
+
+input[type="text"]
+{
+    font-family: Helvetica;
+    background-color: #FF7983;
+    color: white;
+    width: 50%;
+    height: auto;
+    text-align: center;
+    padding: 5px 5px;
+    font-size: 20px;
+}
+input[type="password"]
+{
+    font-family: Helvetica;
+    background-color: #FF7983;
+    color: white;
+    width: 50%;
+    height: auto;
+    text-align: center;
+    padding: 5px 5px;
+    font-size: 20px;
+}
+input[type="submit"]
+{
+    font-family: Helvetica;
+    background-color: #FF5864;
+    color: white;
+    width: 50%;
+    height: auto;
+    text-align: center;
+    padding: 5px 5px;
+    font-size: 20px;
+}
+::placeholder
+{
+    color: white;
+    font-family: Helvetica;
+}
