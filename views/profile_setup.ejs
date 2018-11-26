@@ -1,0 +1,47 @@
+<link href="/style.css" rel="stylesheet" type="text/css">
+<ul>
+    <li><a class="active" href="/main.txt">Home</a></li>
+</ul>
+
+<div class="title_1">
+    <form id="usrform" method="POST" action="/profile_setup" >
+        <H2>CHOOSE A GENDER</H2>
+            <label class="container">
+            <input type="radio" name="gender" value="male" checked="true">Male
+            <span class="checkmark"></span>
+            </label>
+            <label class="container">
+            <input type="radio" name="gender" value="female" >Female
+            <span class="checkmark"></span>
+            </label>
+        <H2>CHOOSE SEXUAL PREFERENCE</H2>
+            <label class="container">
+            <input type="radio" checked="true" name="pref" value="female">Both
+            <span class="checkmark"></span>
+            </label>    
+            <label class="container">
+            <input type="radio" name="pref" value="male">Male
+            <span class="checkmark"></span>
+            </label>
+            <label class="container">
+            <input type="radio" name="pref" value="female">Female
+            <span class="checkmark"></span>
+            </label>
+            <label class="container">
+            <input type="radio" name="pref" value="none">Asexual
+            <span class="checkmark"></span>
+            </label>
+        <H2>ENTER YOUR BIO</H2>
+            <textarea rows="4" cols="50" name="bio" form="usrform" required></textarea>
+        <H2>ENTER TAGS STARTING WITH # AND SEPERATED BY SPACES</H2>
+            <textarea rows="4" cols="50" name="tags" form="usrform" required></textarea>
+        <H2>UPLOAD IMAGES</H2>
+            <input type="file" name="myFile" required><br><br>
+        <input type="submit" value="submit">
+    </form> 
+    
+</div>
+
+<div class="footer">
+        <p2>MATCHA | TREDEAUX PITOUT & MAX GERBER</p2>
+    </div>
