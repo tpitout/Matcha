@@ -33,25 +33,46 @@ const session =                 require('express-session');             //Sessio
 const cookie =                  require('cookie-parser');               //Cookie
 const sql =                     require('mysql');                       //Database 
 const nodemailer =              require('nodemailer');                  //Nodemailer for Email
+const crypto =                  require('crypto');                      //Token generator
 
 const app = express();
 
 //==================================================================    //DATABASE    ++++++++++++++++++++++++++++++
 
-var con = sql.createConnection({                                        //Create Connection
-  host: "localhost",
-  user: "root",
-  password: "123",
-  database: "maindata"
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "123"
 });
 
-con.connect(function(err){                                             //Connect
-  if(err){
-    console.log('Error connecting to Db');
-    return;
-  }
-  console.log('✅ \x1b[1m \x1b[32m Connection established \x1b[0m');
-}); 
+con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+    con.query("CREATE DATABASE maindata", function (err, result) {
+        if (err){
+            return;
+        }
+        console.log("Database created");
+        var con = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "123",
+            database: "maindata"
+        });
+        
+        con.connect(function(err) {
+            if (err){
+                return;
+            }
+            console.log("Connected!");
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0')";
+            con.query(sql, function (err, result) {
+                if (err) throw err;
+                console.log("Table created");
+            });
+        });
+    });
+});
 
 //==================================================================    //DATABASE    ++++++++++++++++++++++++++++++
 
@@ -70,10 +91,6 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false});       //Body-P
 
 app.use(express.static(__dirname + '/public'));                         //Add Public Folder (CSS)
 app.set('view engine', 'ejs');                                          //Set View Engine to EJS
-                                                  
-var username ="";                                                       //Declare some Variables
-var password ="";
-const saltRounds = 1;
 
 app.get("/", function(req, res) {                                       //Get Root
     res.render("index");
@@ -81,19 +98,24 @@ app.get("/", function(req, res) {                                       //Get Ro
 
 app.post("/", urlencodedParser, function(req, res) {                   //GET POST REQUEST
     console.log(req.body);
-    username = req.body.uname;
-    password = req.body.upsw;
-    con.query('SELECT * from userdata WHERE username='+'"'+username+'"'+' AND password='+'"'+password+'"', function(err, rows, fields) {      
-    if (!err) {
-        console.log('DB RETURN: ', rows);
+    con.query('SELECT `password` from userdata WHERE username= ?', [req.body.uname], function(err, result, fields) {
+    if (err) {
+        console.log('Error while performing Query.')
     }
-    if (rows.length == 1) {
-        res.render("main");
-    } else {
-        console.log('Error while performing Query.');
+    else {
+        bcrypt.compare(req.body.upsw, result, (err, res) => {
+            if (res == true){
+                console.log('Successfully Logged in!');
+            }
+            else {
+                console.log('Unuccessfully Logged in');
+            }
+        });
     }
     });
 });
+
+/////////////////////////////////////////////////////////////////////////////////////  REGISTER
 
 app.get("/register.jpeg", function(req, res) {                               
     res.render("register");
@@ -103,18 +125,17 @@ app.post("/register", urlencodedParser, function(req, res) {
     console.log(req.body);
     const errors = validateReg(req);
     if (errors.length == 0) {
-            username = req.body.uname;
-            firstname= req.body.ufname;
-            lastname = req.body.ulname;
-            password = req.body.upsw;
-            email    = req.body.uemail;
+        bcrypt.hash(req.body.upsw, 8, (err, hash) => {
+            if (err){
+                return console.log('Unable to hash', err);
+            }
             console.log(password);
-            con.query('INSERT INTO userdata (name, surname, email, username, password) VALUES ("'+firstname+'","'+lastname+'","'+email+'","'+username+'","'+password+'")');
+            con.query('INSERT INTO userdata (name, surname, email, username, password, token) VALUES ("'+req.body.ufname+'","'+req.body.ulname+'","'+req.body.uemail+'","'+req.body.uname+'","'+hash+'","'+crypto.randomBytes(16).toString(`hex`)+'")');
             var mailOptions = {
                 from: 'official.matcha@gmail.com',
-                to: email,
+                to: req.body.uemail,
                 subject: 'Sending Email using Node.js',
-                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="color:#FF5864;text-align:center;">'+firstname+" "+lastname +"</div>"
+                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname +"</div>"
               };
             transporter.sendMail(mailOptions, function(error, info){
             if (error) {
@@ -123,7 +144,8 @@ app.post("/register", urlencodedParser, function(req, res) {
                 console.log('✅ \x1b[1m \x1b[32m EMAIL SENT: \x1b[0m' + info.response);
             }
             });
-        } else {
+        })
+    } else {
         console.log(errors);
     }
 });
@@ -152,3 +174,23 @@ app.get("/main.txt", function(req, res) {
 app.listen(8080, function() {                                           //Shh and listen!
     console.log("✅ \x1b[1m \x1b[32m SERVER LAUNCHED :: \x1b[33m PORT: 8080 \x1b[0m");
 });
+
+/*//Matcha matching
+u1 = parseInt("0101", 2);
+u2 = parseInt("1001", 2);
+
+// u1Pref = u1 & 3
+// u1Gend = u1 >> 2;
+
+// u2Pref = u2 & 3;
+// u2Gend = u2 >> 2;
+
+// preMatch1 = u1Gend & u2Pref;
+// finMatch1 = prefMatch1 >> 1 | prefMatch1 & 1;
+
+// preMatch2 = u2Gend & u1Pref;
+// finMatch2 = preMatch2 >> 1 | preMatch2 & 1;
+
+// result = finMatch1 & finMatch2;
+
+console.log(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));*/
