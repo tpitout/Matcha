@@ -12,7 +12,6 @@
 
     Run XAMPP or MAMP APACHE/MySQL
 */
-
 /* ToDO
     Password Encrypt
     .pdf
@@ -31,7 +30,7 @@ const mysql =                   require('mysql');                       //mySQL
 const bcrypt =                  require('bcrypt');                      //Encryption
 const session =                 require('express-session');             //Sessions
 const cookie =                  require('cookie-parser');               //Cookie
-const sql =                     require('mysql');                       //Database 
+const sql =                     require('mysql');                       //Database
 const nodemailer =              require('nodemailer');                  //Nodemailer for Email
 const crypto =                  require('crypto');                      //Token generator
 
@@ -61,7 +60,7 @@ con.connect(function(err) {
             password: "123",
             database: "maindata"
         });
-        
+
         con.connect(function(err) {
             if (err){
                 return;
