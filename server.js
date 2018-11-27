@@ -46,7 +46,9 @@ var con = mysql.createConnection({
 });
 
 con.connect(function(err) {
-    if (err) throw err;
+    if (err){
+        console.log(err);
+    }
     console.log("Connected!");
     con.query("CREATE DATABASE maindata", function (err, result) {
         if (err){
@@ -67,7 +69,9 @@ con.connect(function(err) {
             console.log("Connected!");
             var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0')";
             con.query(sql, function (err, result) {
-                if (err) throw err;
+                if (err){
+                    console.log(err);
+                }
                 console.log("Table created");
             });
         });
@@ -98,12 +102,12 @@ app.get("/", function(req, res) {                                       //Get Ro
 
 app.post("/", urlencodedParser, function(req, res) {                   //GET POST REQUEST
     console.log(req.body);
-    con.query('SELECT `password` from userdata WHERE username= ?', [req.body.uname], function(err, result, fields) {
+    con.query('SELECT `password` from `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {
     if (err) {
-        console.log('Error while performing Query.')
+        console.log('Error while performing Query1.')
     }
     else {
-        bcrypt.compare(req.body.upsw, result, (err, res) => {
+        bcrypt.compare(req.body.upsw, result[0].password, (err, res) => {
             if (res == true){
                 console.log('Successfully Logged in!');
             }
@@ -117,11 +121,11 @@ app.post("/", urlencodedParser, function(req, res) {                   //GET POS
 
 /////////////////////////////////////////////////////////////////////////////////////  REGISTER
 
-app.get("/register.jpeg", function(req, res) {                               
+app.get("/register.jpeg", function(req, res) {
     res.render("register");
 });
 
-app.post("/register", urlencodedParser, function(req, res) {                                     
+app.post("/register", urlencodedParser, function(req, res) {
     console.log(req.body);
     const errors = validateReg(req);
     if (errors.length == 0) {
@@ -129,13 +133,20 @@ app.post("/register", urlencodedParser, function(req, res) {
             if (err){
                 return console.log('Unable to hash', err);
             }
-            console.log(password);
-            con.query('INSERT INTO userdata (name, surname, email, username, password, token) VALUES ("'+req.body.ufname+'","'+req.body.ulname+'","'+req.body.uemail+'","'+req.body.uname+'","'+hash+'","'+crypto.randomBytes(16).toString(`hex`)+'")');
+            token = crypto.randomBytes(16).toString(`hex`);
+            con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`) VALUES (?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token], function(err, result, fields){
+            if (err) {
+                console.log('Error while performing Query2.')
+            }
+            else {
+                console.log('Successfully Added User!');
+            }
+            });
             var mailOptions = {
                 from: 'official.matcha@gmail.com',
                 to: req.body.uemail,
                 subject: 'Sending Email using Node.js',
-                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname +"</div>"
+                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname+"</div>"
               };
             transporter.sendMail(mailOptions, function(error, info){
             if (error) {
@@ -154,7 +165,7 @@ app.post("/profile_setup", urlencodedParser, function(req, res) {
     console.log(req.body);
 });
 
-function validateReg(req) {                                               
+function validateReg(req) {
     const errors = [];
 
     if (req.body.upsw != req.body.upsw2) {
@@ -163,11 +174,11 @@ function validateReg(req) {
     return errors;
 };
 
-app.get("/profile_setup.mp3", function(req, res) {                                  
+app.get("/profile_setup.mp3", function(req, res) {
     res.render("profile_setup");
 });
 
-app.get("/main.txt", function(req, res) {                                      
+app.get("/main.txt", function(req, res) {
     res.render("main");
 });
 
