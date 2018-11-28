@@ -25,6 +25,14 @@ h3
     margin-bottom: 0%;
     font-weight: bold;
 }
+h4
+{
+    font-family: 'Montserrat';
+    text-align: center;
+    color: white;
+    font-size: 25px;
+    margin-top: 2%;
+}
 .title_1
 {
     width: 50%;
@@ -229,3 +237,39 @@ input[type="submit"]
     background-color: #FF5864;
     color: white;
   }
+.notif
+{
+    height: 100%;
+    color: white;
+    border: 5px solid #E54F5A;
+    background-color: #E54F5A;
+    width: 24%;
+    float: right;
+    margin-top: 20px;
+    margin-bottom: 5px; 
+}
+.bar
+{
+    display: block;
+    width: 10.4%;
+    background-color: #E54F5A;
+    color:white;
+    text-align: center;
+}
+.bar1
+{
+    display: block;
+    width: 10%;
+    border: 5px Solid #E54F5A;
+    background-color: white;
+    color:white;
+    text-align: center;
+}
+.mainbut
+{
+    text-align: center;
+    font-size: 25px;
+    color: white;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
