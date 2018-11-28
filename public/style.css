@@ -1,12 +1,17 @@
+
+body
+{
+    font-family: 'Montserrat';
+}
 h1
 {
-    font-family: Helvetica;
+    font-family: 'Montserrat';
     text-align: center;
     color: #FF5864;
 }
 h2
 {
-    font-family: Helvetica;
+    font-family: 'Montserrat';
     text-align: center;
     color: #FF5864;
     font-weight: lighter;
@@ -14,7 +19,7 @@ h2
 h3
 {
     font-size: 50px;
-    font-family: Helvetica;
+    font-family: 'Montserrat';
     text-align: center;
     color: #FF5864;
     margin-bottom: 0%;
@@ -32,7 +37,7 @@ a
 {
     color: #FF5864;
     text-align: center;
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     text-decoration: none;
 }
 ul 
@@ -42,7 +47,7 @@ ul
     padding: 0;
     overflow: hidden;
     background-color: #FF5864;
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     font-size: 20px;
 }
 
@@ -67,7 +72,7 @@ li a:hover
 
 input[type="text"]
 {
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     background-color: #FF7983;
     color: white;
     width: 50%;
@@ -78,7 +83,7 @@ input[type="text"]
 }
 input[type="email"]
 {
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     background-color: #FF7983;
     color: white;
     width: 50%;
@@ -89,7 +94,7 @@ input[type="email"]
 }
 input[type="password"]
 {
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     background-color: #FF7983;
     color: white;
     width: 50%;
@@ -100,7 +105,7 @@ input[type="password"]
 }
 input[type="submit"]
 {
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     background-color: #FF5864;
     color: white;
     width: 50%;
@@ -112,7 +117,7 @@ input[type="submit"]
 ::placeholder
 {
     color: white;
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
 }
 .container {
     display: block;
@@ -122,7 +127,7 @@ input[type="submit"]
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-family: Helvetica;
+    font-family: 'Montserrat', sans-serif;
     color: #FF5864;
     text-align: left;
     margin-left: 45%;
@@ -185,7 +190,7 @@ input[type="submit"]
   textarea
   {
       border: 2px SOLID #FF5864;
-      font-family: Helvetica;
+      font-family: 'Montserrat', sans-serif;
       font-weight: bolder;
       color: rgb(255, 56, 69);
       background-color: rgb(255, 239, 239);
@@ -213,5 +218,14 @@ input[type="submit"]
     color: white;
     text-align: center;
     padding: 10px 10px; 
-    font-family: Helvetica;  
+    font-family: 'Montserrat', sans-serif;  
+  }
+  .swal-overlay {
+    background-color: #FF5864;
+  }
+  .swal-button {
+    font-size: 25px;
+    padding: 10px 10px;
+    background-color: #FF5864;
+    color: white;
   }

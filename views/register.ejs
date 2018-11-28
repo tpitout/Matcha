@@ -1,4 +1,6 @@
 <link href="/style.css" rel="stylesheet" type="text/css">
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 
 <div>
     <br>
@@ -7,30 +9,39 @@
 <div class="title_1">
 <h1>REGISTER</h1>
 </div>
-    <div class='title_1'>
-        <br>
-            <form action="/register" method="post">
-                <h2>ENTER USERNAME</h2>
-                <input type="text" name="uname" placeholder="ENTER YOUR USERNAME HERE" required>
-                <h2>ENTER NAME</h2>
-                <input type="text" name="ufname" placeholder="ENTER YOUR NAME HERE" required>
-                <h2>ENTER SURNAME</h2>
-                <input type="text" name="ulname" placeholder="ENTER YOUR SURNAME HERE" required>
-                <h2>ENTER EMAIL</h2>
-                <input type="email" name="uemail" placeholder="ENTER YOUR EMAIL HERE" required>
-                <h2>ENTER PASSWORD</h2>
-                <input type="password" name="upsw" pattern="[A-Za-z0-9]+" placeholder="ENTER YOUR PASSWORD" required>
-                <h2>ENTER PASSWORD AGAIN</h2>
-                <input type="password" name="upsw2" pattern="[A-Za-z0-9]+" placeholder="ENTER YOUR PASSWORD" required>
-                <input type="SUBMIT" value="submit">
-            </form>
-
-            
+    <div class='title_1' id="form1">
+    <br>
+    <form action="/register" method="post">
+        <h2>ENTER USERNAME</h2>
+        <input type="text" name="uname" placeholder="ENTER YOUR USERNAME HERE" required>
+        <h2>ENTER NAME</h2>
+        <input type="text" name="ufname" placeholder="ENTER YOUR NAME HERE" required>
+        <h2>ENTER SURNAME</h2>
+        <input type="text" name="ulname" placeholder="ENTER YOUR SURNAME HERE" required>
+        <h2>ENTER EMAIL</h2>
+        <input type="email" name="uemail" placeholder="ENTER YOUR EMAIL HERE" required>
+        <h2>ENTER PASSWORD</h2>
+        <input type="password" name="upsw" id="1" pattern="[A-Za-z0-9]+" placeholder="ENTER YOUR PASSWORD" required>
+        <h2>ENTER PASSWORD AGAIN</h2>
+        <input type="password" name="upsw2" id="2" pattern="[A-Za-z0-9]+" placeholder="ENTER YOUR PASSWORD" required>
+        <input type="SUBMIT" value="submit">
+    </form>
+    <script>
+        document.querySelector('#form1').addEventListener('submit', function(e) {
+            var form = this;
+            e.preventDefault();
+            if (document.getElementById("1").value == document.getElementById("2").value){
+                swal("SUCCESS", "Check your Email!", "success");
+            }
+            else {
+                swal("OOPS", "WRONG DETAIL!", "error");
+            }
+        });
+    </script>
     </div>
     <div style="text-align: center;">
         <br><a class="abut" href="/">LOGIN</a>
     </div>
-
 <div class="footer">
     <p2>MATCHA | TREDEAUX PITOUT & MAX GERBER</p2>
 </div>

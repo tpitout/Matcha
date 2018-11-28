@@ -93,10 +93,11 @@ app.post("/", urlencodedParser, function(req, res) {
     else {
         bcrypt.compare(req.body.upsw, result[0].password, (err, res) => {
             if (res == true){
-                console.log('Successfully Logged in!');
+                console.log('✅ \x1b[1m \x1b[32m Successfully Logged in! \x1b[0m ');
+                window.location.href = 'main';
             }
             else {
-                console.log('Unuccessfully Logged in');
+                console.log('❌ \x1b[1m \x1b[31m Unuccessfully Logged in! \x1b[0m ');
             }
         });
     }
@@ -119,10 +120,11 @@ app.post("/register", urlencodedParser, function(req, res) {
             token = crypto.randomBytes(16).toString(`hex`);
             con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`) VALUES (?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token], function(err, result, fields){
             if (err) {
-                console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #2 \x1b[0m')
+                console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #2 \x1b[0m');
             }
             else {
                 console.log('✅ \x1b[1m \x1b[32m SUCCESFULLY ADDED NEW USER! \x1b[0m');
+                
             }
             });
             var mailOptions = {
