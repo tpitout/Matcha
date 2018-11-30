@@ -123,6 +123,13 @@ app.post("/register", urlencodedParser, function(req, res) {
                 return console.log(red + " UNABLE TO HASH \x1b[0m", err);
             }
             token = crypto.randomBytes(16).toString(`hex`);
+            var mailOptions = {
+                from: 'official.matcha@gmail.com',
+                to: req.body.uemail,
+                subject: 'WELCOME TO MATCHA ❤️',
+                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname+
+                "<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/profile_setup.mp3/token="+token+"'>LOGIN</a>"+"</div>"
+            };
             con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [req.body.uname], (err, results, fields) => {
                 if (err) {
                     console.log(red + 'ERROR ON QUERY #2 \x1b[0m');
@@ -160,21 +167,29 @@ app.post("/register", urlencodedParser, function(req, res) {
                 }
             })
         })
-    } else {
+    }
+    else {
         console.log(errors);
     }
 });
 
-app.post("/profile_setup", urlencodedParser, function(req, res) {
+app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {
     console.log(req.body);
-    if (req.body)
-    {
-        //SQL INSERT
-    }
+    var code = evaluateCode(req.body.gender, req.body.pref);
+    var token = req.params.token;
+    token = token.slice(6,38);
+    con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ? WHERE `token` = ?', [code, req.body.bio, req.body.tags, token], (err, result, fields) => {
+        if (err) {
+            console.log(red +'ERROR ON QUERY #5 \x1b[0m', err);
+        }
+        else {
+            console.log(green +'SUCCESFULLY ADDED USER PREFERENCES! \x1b[0m');
+        }
+        });
 });
 
-app.get("/profile_setup.mp3", function(req, res) {
-    res.render("profile_setup");
+app.get("/profile_setup.mp3/:token", function(req, res) {
+    res.render("profile_setup", {output: req.params.token});
 });
 
 app.get("/main.txt", function(req, res) {
@@ -192,3 +207,27 @@ function validateReg(req) {
     }
     return errors;
 };
+
+function evaluateCode(gender, preference) {
+    var code;
+
+    if (gender == "male"){
+        code = "01";
+    }
+    else {
+        code = "10";
+    }
+    if (preference == "none"){
+        code = code+"00";
+    }
+    else if (preference == "male"){
+        code = code+"01";
+    }
+    else if (preference == "female"){
+        code = code+"10";
+    }
+    else if (preference == "both"){
+        code = code+"11";
+    }
+    return code;
+}
