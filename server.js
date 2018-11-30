@@ -28,6 +28,22 @@ const swal =                    require('sweetalert');
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false});
 
+const mailOptions = {
+    from: 'official.matcha@gmail.com',
+    to: req.body.uemail,
+    subject: 'WELCOME TO MATCHA ❤️',
+    html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname+
+    "<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/profile_setup.mp3?token="+token+"'>LOGIN</a>"+"</div>"
+};
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'official.matcha@gmail.com',
+      pass: 'MatchaMatcha'
+    }
+});
+
 app.use(express.static(__dirname + '/public'));                        
 app.set('view engine', 'ejs');   
 
@@ -61,7 +77,7 @@ con.connect(function(err) {
                 return;
             }
             console.log("✅ \x1b[1m \x1b[32m CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `token` VARCHAR(255), `gender` INT(3), `verified` TINYINT(1) DEFAULT '0')";
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `reports` INT(5), `bio` TEXT, `tags` TEXT)";
             con.query(sql, function (err, result) {
                 if (err){
                     console.log(err);
@@ -70,14 +86,6 @@ con.connect(function(err) {
             });
         });
     });
-});
-
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'official.matcha@gmail.com',
-      pass: 'MatchaMatcha'
-    }
 });
 
 app.get("/", function(req, res) {                                     
@@ -118,29 +126,42 @@ app.post("/register", urlencodedParser, function(req, res) {
                 return console.log("❌ \x1b[1m \x1b[31m UNABLE TO HASH \x1b[0m", err);
             }
             token = crypto.randomBytes(16).toString(`hex`);
-            con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`) VALUES (?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token], function(err, result, fields){
-            if (err) {
-                console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #2 \x1b[0m');
-            }
-            else {
-                console.log('✅ \x1b[1m \x1b[32m SUCCESFULLY ADDED NEW USER! \x1b[0m');
-                
-            }
-            });
-            var mailOptions = {
-                from: 'official.matcha@gmail.com',
-                to: req.body.uemail,
-                subject: 'WELCOME TO MATCHA ❤️',
-                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname+
-                "<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/profile_setup.mp3?token="+token+"'>LOGIN</a>"+"</div>"
-              };
-            transporter.sendMail(mailOptions, function(error, info){
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('✅ \x1b[1m \x1b[32m EMAIL SENT: \x1b[0m' + info.response);
-            }
-            });
+            con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [req.body.uname], (err, results, fields) => {
+                if (err) {
+                    console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #2 \x1b[0m');
+                }
+                if (results.length == 0){
+                    console.log(req.body.email);
+                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `email` = ?', [req.body.uemail], (err, results, fields) => {
+                        if (err) {
+                            console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #3 \x1b[0m');
+                        }
+                        if (results.length == 0){
+                            con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`) VALUES (?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token], function(err, result, fields){
+                                if (err) {
+                                    console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #4 \x1b[0m');
+                                }
+                                else {
+                                    console.log('✅ \x1b[1m \x1b[32m SUCCESFULLY ADDED NEW USER! \x1b[0m');
+                                    transporter.sendMail(mailOptions, function(error, info){
+                                        if (error) {
+                                            console.log(error);
+                                        } else {
+                                            console.log('✅ \x1b[1m \x1b[32m EMAIL SENT: \x1b[0m' + info.response);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        else {
+                            console.log('❌ \x1b[1m \x1b[31m EMAIL EXISTS IN DATABASE \x1b[0m');
+                        }
+                    })
+                }
+                else {
+                    console.log('❌ \x1b[1m \x1b[31m USERNAME EXISTS IN DATABASE \x1b[0m');
+                }
+            })
         })
     } else {
         console.log(errors);
@@ -149,10 +170,17 @@ app.post("/register", urlencodedParser, function(req, res) {
 
 app.post("/profile_setup", urlencodedParser, function(req, res) {
     console.log(req.body);
-    if (req.body)
-    {
-        //SQL INSERT
-    }
+    var code = evaluateCode(req.body.gender, req.body.pref);
+    var token = req.query.token;
+    con.query('INSERT INTO `maindata`.`userdata` (`code`, `bio`, `tags`) VALUES (?,?,?) WHERE `token` = ?', [code, req.body.bio, req.body.tags, token], (err, result, fields) => {
+        if (err) {
+            console.log('❌ \x1b[1m \x1b[31m ERROR ON QUERY #5 \x1b[0m', err);
+        }
+        else {
+            console.log('✅ \x1b[1m \x1b[32m SUCCESFULLY ADDED USER PREFERENCES! \x1b[0m');
+        }
+        });
+    console.log(token);
 });
 
 app.get("/profile_setup.mp3", function(req, res) {
@@ -175,3 +203,48 @@ function validateReg(req) {
     }
     return errors;
 };
+
+function evaluateCode(gender, preference) {
+    var code;
+
+    if (gender == "male"){
+        code = "01";
+    }
+    else {
+        code = "10";
+    }
+    if (preference == "none"){
+        code = code+"00";
+    }
+    else if (preference == "male"){
+        code = code+"01";
+    }
+    else if (preference == "female"){
+        code = code+"10";
+    }
+    else if (preference == "both"){
+        code = code+"11";
+    }
+    return code;
+}
+
+/*//Matcha matching
+
+u1 = parseInt("0101", 2);
+u2 = parseInt("1001", 2);
+
+// u1Pref = u1 & 3
+// u1Gend = u1 >> 2;
+
+// u2Pref = u2 & 3;
+// u2Gend = u2 >> 2;
+
+// preMatch1 = u1Gend & u2Pref;
+// finMatch1 = prefMatch1 >> 1 | prefMatch1 & 1;
+
+// preMatch2 = u2Gend & u1Pref;
+// finMatch2 = preMatch2 >> 1 | preMatch2 & 1;
+
+// result = finMatch1 & finMatch2;
+
+console.log(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));*/
