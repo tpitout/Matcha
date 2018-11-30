@@ -16,7 +16,7 @@
 
 const express =                 require('express');                     //Include Express
 const ejs =                     require('ejs');                         //Include EJS
-const bodyParser =              require('body-parser');                 //body-parser
+ const bodyParser =              require('body-parser');                 //body-parser
 const mysql =                   require('mysql');                       //mySQL
 const bcrypt =                  require('bcrypt');                      //Encryption
 // const session =                 require('express-session');             //Sessions
@@ -61,7 +61,7 @@ con.connect(function(err) {
                 return;
             }
             console.log("✅ \x1b[1m \x1b[32m CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0')";
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `token` VARCHAR(255), `gender` INT(3), `verified` TINYINT(1) DEFAULT '0')";
             con.query(sql, function (err, result) {
                 if (err){
                     console.log(err);
@@ -94,7 +94,7 @@ app.post("/", urlencodedParser, function(req, res) {
         bcrypt.compare(req.body.upsw, result[0].password, (err, res) => {
             if (res == true){
                 console.log('✅ \x1b[1m \x1b[32m Successfully Logged in! \x1b[0m ');
-                window.location.href = 'main';
+
             }
             else {
                 console.log('❌ \x1b[1m \x1b[31m Unuccessfully Logged in! \x1b[0m ');
@@ -149,6 +149,10 @@ app.post("/register", urlencodedParser, function(req, res) {
 
 app.post("/profile_setup", urlencodedParser, function(req, res) {
     console.log(req.body);
+    if (req.body)
+    {
+        //SQL INSERT
+    }
 });
 
 app.get("/profile_setup.mp3", function(req, res) {
@@ -171,23 +175,3 @@ function validateReg(req) {
     }
     return errors;
 };
-
-/*//Matcha matching
-u1 = parseInt("0101", 2);
-u2 = parseInt("1001", 2);
-
-// u1Pref = u1 & 3
-// u1Gend = u1 >> 2;
-
-// u2Pref = u2 & 3;
-// u2Gend = u2 >> 2;
-
-// preMatch1 = u1Gend & u2Pref;
-// finMatch1 = prefMatch1 >> 1 | prefMatch1 & 1;
-
-// preMatch2 = u2Gend & u1Pref;
-// finMatch2 = preMatch2 >> 1 | preMatch2 & 1;
-
-// result = finMatch1 & finMatch2;
-
-console.log(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));*/
