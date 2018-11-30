@@ -56,7 +56,7 @@ ul
     overflow: hidden;
     background-color: #FF5864;
     font-family: 'Montserrat', sans-serif;
-    font-size: 20px;
+    font-size: 30px;
 }
 
 li 
@@ -75,7 +75,7 @@ li a
 
 li a:hover 
 {
-    background-color: #E54F5A;
+    color: rgb(255, 174, 179);
 }
 
 input[type="text"]
@@ -255,7 +255,6 @@ input[type="submit"]
     background-color: #FF5864;
     color: white;
     text-align: center;
-    padding: 10px 10px; 
     font-family: 'Montserrat', sans-serif;  
 }
 .leftpanel
@@ -266,6 +265,7 @@ input[type="submit"]
     background-color: #FF5864;
     width: 15%;
     float: left;
+    margin-left: -10px;
 }
 .rightpanel
 {
@@ -275,6 +275,5 @@ input[type="submit"]
     background-color: #FF5864;
     width: 15%;
     float: right;
-    margin-top: 20px;
-    margin-bottom: 5px; 
+    margin-right: -10px;
 }

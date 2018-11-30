@@ -13,36 +13,38 @@
 
     Run XAMPP or MAMP APACHE/MySQL
 
-    Modal Errorirect
+    Modal Fix
+    Login Fix
+
 */
 
-const express =                 require('express');                     //Include Express
-const ejs =                     require('ejs');                         //Include EJS
- const bodyParser =              require('body-parser');                 //body-parser
-const mysql =                   require('mysql');                       //mySQL
-const bcrypt =                  require('bcrypt');                      //Encryption
-// const session =                 require('express-session');             //Sessions
-// const cookie =                  require('cookie-parser');               //Cookie
-const nodemailer =              require('nodemailer');                  //Nodemailer for Email
-const crypto =                  require('crypto');                      //Token generator
-const swal =                    require('sweetalert');
+const express =                 require('express');                     //Include Express           //T
+const ejs =                     require('ejs');                         //Include EJS               //T
+const bodyParser =              require('body-parser');                 //body-parser               //T
+const mysql =                   require('mysql');                       //mySQL                     //T
+const bcrypt =                  require('bcrypt');                      //Encryption                //T
+const session =                 require('express-session');             //Sessions               //T
+const cookie =                  require('cookie-parser');               //Cookie                 //T
+const nodemailer =              require('nodemailer');                  //Nodemailer for Email      //T
+const crypto =                  require('crypto');                      //Token generator           //M
+const swal =                    require('sweetalert');                                              //T
 
-const app = express();
-const urlencodedParser = bodyParser.urlencoded({ extended: false});
+const app = express();                                                                              //T
+const urlencodedParser = bodyParser.urlencoded({ extended: false});                                 //T
 
-var red = "❌ \x1b[1m \x1b[31m";
-var green = "✅ \x1b[1m \x1b[32m";
+var red = "❌ \x1b[1m \x1b[31m";                                                                   //T
+var green = "✅ \x1b[1m \x1b[32m";                                                                 //T
 
-app.use(express.static(__dirname + '/public'));                        
-app.set('view engine', 'ejs');   
+app.use(express.static(__dirname + '/public'));                                                    //T
+app.set('view engine', 'ejs');                                                                     //T
 
-var con = mysql.createConnection({
+var con = mysql.createConnection({                                                                 //T
     host: "localhost",
     user: "root",
     password: "123"
 });
 
-con.connect(function(err) {
+con.connect(function(err) {                                                                        //M
     if (err){
         console.log(err);
     }
@@ -52,7 +54,7 @@ con.connect(function(err) {
             console.log(red+err+" \x1b[0m");
             return;
         }
-        console.log(green + "DATABASE CREATED : \x1b[33m MAINDATA \x1b[0m");
+        console.log(green + "DATABASE CREATED : \x1b[33m MAINDATA \x1b[0m");                        //M
         var con = mysql.createConnection({
             host: "localhost",
             user: "root",
@@ -60,7 +62,7 @@ con.connect(function(err) {
             database: "maindata"
         });
 
-        con.connect(function(err) {
+        con.connect(function(err) {                                                                 //M
             if (err){
                 console.log(red+ " DATABASE ALREADY EXIST'S \x1b[0m");
                 return;
@@ -77,7 +79,7 @@ con.connect(function(err) {
     });
 });
 
-var transporter = nodemailer.createTransport({
+var transporter = nodemailer.createTransport({                                                     //T
     service: 'gmail',
     auth: {
       user: 'official.matcha@gmail.com',
@@ -85,45 +87,58 @@ var transporter = nodemailer.createTransport({
     }
 });
 
-app.get("/", function(req, res) {                                     
+app.get("/", function(req, res) {                                                                  //T                                 
     res.render("index");
 });
 
-app.post("/", urlencodedParser, function(req, res) {   
+app.post("/", urlencodedParser, function(req, res) {                                               //T-M
     var success = "/";               
-    console.log(req.body);
-    con.query('SELECT `password` from `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {
-    if (err) {
-        console.log(red + 'Error while performing Query1.')
-    }
-    else {
-        bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
-            if (response == true){
-                console.log(green+" Successfully Logged in! \x1b[0m ");
-                res.redirect("/main.txt");
+    console.log(req.body);                              
+    if (req.body.uname && req.body.upsw)                                                            //T        
+    {
+        con.query('SELECT * FROM `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {      //T
+            if (result.length == 1)                                                                 //T
+            {
+                con.query('SELECT `password` from `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {
+                    if (err) {
+                        console.log(red + 'Error while performing Query1.')
+                    }
+                    else 
+                    {
+                        console.log(result[0]);
+                        if (result)
+                        {
+                            bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
+                                if (response == true){
+                                    console.log(green+" Successfully Logged in! \x1b[0m ");
+                                    res.redirect("/main.txt");
+                                }
+                                else {
+                                    console.log(red+"Unuccessfully Logged in! \x1b[0m ");
+                                }
+                            });
+                        }
+                    }
+                    });
             }
-            else {
-                console.log(red+"Unuccessfully Logged in! \x1b[0m ");
-            }
-        });
+        });   
     }
-    });
 });
 
-app.get("/register.jpeg", function(req, res) {
+app.get("/register.jpeg", function(req, res) {                                                      //T
     res.render("register");
 });
 
-app.post("/register", urlencodedParser, function(req, res) {
-    console.log(req.body);
-    const errors = validateReg(req);
-    if (errors.length == 0) {
-        bcrypt.hash(req.body.upsw, 8, (err, hash) => {
+app.post("/register", urlencodedParser, function(req, res) {                                        //T-M
+    console.log(req.body);                                                                          //T
+    const errors = validateReg(req);                                                                //T
+    if (errors.length == 0) {                                                                       //T
+        bcrypt.hash(req.body.upsw, 8, (err, hash) => {                                              //M
             if (err){
                 return console.log(red + " UNABLE TO HASH \x1b[0m", err);
             }
-            token = crypto.randomBytes(16).toString(`hex`);
-            var mailOptions = {
+            token = crypto.randomBytes(16).toString(`hex`);                                         //M
+            var mailOptions = {                                                                     //T
                 from: 'official.matcha@gmail.com',
                 to: req.body.uemail,
                 subject: 'WELCOME TO MATCHA ❤️',
@@ -165,7 +180,7 @@ app.post("/register", urlencodedParser, function(req, res) {
                 else {
                     console.log(red + 'USERNAME EXISTS IN DATABASE \x1b[0m');
                 }
-            })
+            })                                                                                      //M
         })
     }
     else {
@@ -173,7 +188,7 @@ app.post("/register", urlencodedParser, function(req, res) {
     }
 });
 
-app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {
+app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {                           //M
     console.log(req.body);
     var code = evaluateCode(req.body.gender, req.body.pref);
     var token = req.params.token;
@@ -188,19 +203,19 @@ app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {
         });
 });
 
-app.get("/profile_setup.mp3/:token", function(req, res) {
+app.get("/profile_setup.mp3/:token", function(req, res) {                                           //M
     res.render("profile_setup", {output: req.params.token});
 });
 
-app.get("/main.txt", function(req, res) {
+app.get("/main.txt", function(req, res) {                                                           //T
     res.render("main");
 });
 
-app.listen(8080, function() {                                         
+app.listen(8080, function() {                                                                       //T                       
     console.log(green + "SERVER LAUNCHED :: \x1b[33m PORT: 8080 \x1b[0m");
 });
 
-function validateReg(req) {
+function validateReg(req) {                                                                         //T
     const errors = [];
     if (req.body.upsw != req.body.upsw2) {
         errors.push("Passwords Do not match!");
@@ -208,7 +223,7 @@ function validateReg(req) {
     return errors;
 };
 
-function evaluateCode(gender, preference) {
+function evaluateCode(gender, preference) {                                                         //M
     var code;
 
     if (gender == "male"){
