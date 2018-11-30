@@ -237,34 +237,7 @@ input[type="submit"]
     background-color: #FF5864;
     color: white;
   }
-.notif
-{
-    height: 100%;
-    color: white;
-    border: 5px solid #E54F5A;
-    background-color: #E54F5A;
-    width: 24%;
-    float: right;
-    margin-top: 20px;
-    margin-bottom: 5px; 
-}
-.bar
-{
-    display: block;
-    width: 10.4%;
-    background-color: #E54F5A;
-    color:white;
-    text-align: center;
-}
-.bar1
-{
-    display: block;
-    width: 10%;
-    border: 5px Solid #E54F5A;
-    background-color: white;
-    color:white;
-    text-align: center;
-}
+
 .mainbut
 {
     text-align: center;
@@ -272,4 +245,36 @@ input[type="submit"]
     color: white;
     margin-top: 5px;
     margin-bottom: 5px;
+}
+.header
+{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background-color: #FF5864;
+    color: white;
+    text-align: center;
+    padding: 10px 10px; 
+    font-family: 'Montserrat', sans-serif;  
+}
+.leftpanel
+{
+    height: 100%;
+    color: white;
+    border: 5px solid #FF5864;
+    background-color: #FF5864;
+    width: 15%;
+    float: left;
+}
+.rightpanel
+{
+    height: 100%;
+    color: white;
+    border: 5px solid #FF5864;
+    background-color: #FF5864;
+    width: 15%;
+    float: right;
+    margin-top: 20px;
+    margin-bottom: 5px; 
 }
