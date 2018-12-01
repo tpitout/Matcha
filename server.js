@@ -12,9 +12,6 @@
     npm install sweetalert          --save
 
     Run XAMPP or MAMP APACHE/MySQL
-
-    Modal Fix
-
 */
 
 const express =                 require('express');                     //Include Express           //T
@@ -75,6 +72,13 @@ con.connect(function(err) {                                                     
                     console.log(err);
                 }
                 console.log(green +"TABLE CREATED  :   \x1b[33m USERDATA \x1b[0m");
+            });
+            var sql = "CREATE TABLE pageviews (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `viewer` VARCHAR(255))";
+            con.query(sql, function (err, result) {
+                if (err){
+                    console.log(err);
+                }
+                console.log(green +"TABLE CREATED  :   \x1b[33m PageViews \x1b[0m");
             });
         });
     });
@@ -234,10 +238,18 @@ app.get("/main.txt", function(req, res) {
                 var fname = result[0].name;
                 var sname = result[0].surname;
                 var email = result[0].email;
-                var code = result[0].code;
+                var code  = result[0].code;
                 //F4M3
+                con.query('SELECT * FROM `maindata`.`userdata`', (err, resl, fields) => {
+                    var ppl = [];
+                    for (i = 0; i < resl.length; i++)
+                    {
+                        ppl.push(resl[i].name);
+                        console.log(ppl[i]);
+                    }
+                    res.render("main", {uname, fname, sname, email, code, ppl});
+                });
             }
-            res.render("main", {uname, fname, sname, email, code});
         });
     } else {
         res.render("index");

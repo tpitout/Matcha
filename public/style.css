@@ -287,3 +287,21 @@ input[type="submit"]
     float: right;
     margin-right: -10px;
 }
+.middle
+{
+    margin-top: 80px;
+    text-align: center;
+    border: 1px solid #FF5864;
+    height: 100%; 
+    width: auto; 
+    color: #FF5864;
+    font-size: 1vw;
+}
+.mainlay
+{
+    display: inline;
+}
+.person
+{
+    border-bottom: 2px solid #FF5864;
+}

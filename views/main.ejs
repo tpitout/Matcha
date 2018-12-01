@@ -7,17 +7,29 @@
     <li><a class="active" href="/">LOGOUT</a></li>
 </ul>
 </div>
+<div class="mainlay">
+  <div class="leftpanel">
+    <h1>USER INFO</h1>
+    <h5><%= uname %></h5>
+    <h5><%= fname %></h5>
+    <h5><%= sname %></h5>
+    <h5><%= email %></h5>
+    <h5><%= code %> </h5>
+  </div>
 
-<div class="rightpanel">
-</div>
+  <div class="rightpanel">
+      <h1>RIGHTPANEL</h1>
+    </div>
 
-<div class="leftpanel">
-  <br><br>
-<h5><%= uname %></h5>
-<h5><%= fname %></h5>
-<h5><%= sname %></h5>
-<h5><%= email %></h5>
-<h5><%= code %> </h5>
+  <div class="middle"> 
+    <% for(i = 0; i < ppl.length; i++) { %>
+    <div class="person">
+    <%=  ppl[i]  %>
+    </div>
+    <% } %>
+  </div>
+
+
 </div>
 
 <script>
