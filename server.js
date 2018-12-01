@@ -92,9 +92,6 @@ var transporter = nodemailer.createTransport({                                  
 });
 
 app.get("/", function(req, res) {                                                                  //T                                 
-    ssn=req.session;
-    ssn.comport; 
-    ssn.command;
     res.render("index");
 });
 
