@@ -33,6 +33,16 @@ h4
     font-size: 25px;
     margin-top: 2%;
 }
+h5
+{
+    font-size: 1vw;
+    font-family: 'Montserrat';
+    text-align: center;
+    color: #FF5864;
+    margin-bottom: 0px;
+    margin-bottom: 0px;
+    font-weight: lighter;
+}
 .title_1
 {
     width: 50%;
@@ -261,8 +271,8 @@ input[type="submit"]
 {
     height: 100%;
     color: white;
-    border: 5px solid #FF5864;
-    background-color: #FF5864;
+    border: 1px solid #FF5864;
+    background-color: white;
     width: 15%;
     float: left;
     margin-left: -10px;
@@ -271,8 +281,8 @@ input[type="submit"]
 {
     height: 100%;
     color: white;
-    border: 5px solid #FF5864;
-    background-color: #FF5864;
+    border: 1px solid #FF5864;
+    background-color: white;
     width: 15%;
     float: right;
     margin-right: -10px;

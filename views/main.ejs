@@ -4,17 +4,24 @@
 <div class="header">
 <ul>
     <li><a class="active" href="/main.txt">HOME</a></li>
+    <li><a class="active" href="/">LOGOUT</a></li>
 </ul>
 </div>
 
 <div class="rightpanel">
 </div>
-<div class="leftpanel">
 
+<div class="leftpanel">
+  <br><br>
+<h5><%= uname %></h5>
+<h5><%= fname %></h5>
+<h5><%= sname %></h5>
+<h5><%= email %></h5>
+<h5><%= code %> </h5>
 </div>
+
 <script>
   navigator.geolocation.getCurrentPosition(function(position){
     console.log(position);
   });
 </script>
-

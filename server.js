@@ -14,7 +14,6 @@
     Run XAMPP or MAMP APACHE/MySQL
 
     Modal Fix
-    Login Fix
 
 */
 
@@ -37,6 +36,8 @@ var green = "✅ \x1b[1m \x1b[32m";                                             
 
 app.use(express.static(__dirname + '/public'));                                                    //T
 app.set('view engine', 'ejs');                                                                     //T
+
+app.use(session({secret:'TREDX'}));
 
 var con = mysql.createConnection({                                                                 //T
     host: "localhost",
@@ -84,10 +85,16 @@ var transporter = nodemailer.createTransport({                                  
     auth: {
       user: 'official.matcha@gmail.com',
       pass: 'MatchaMatcha'
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
 app.get("/", function(req, res) {                                                                  //T                                 
+    ssn=req.session;
+    ssn.comport; 
+    ssn.command;
     res.render("index");
 });
 
@@ -111,6 +118,7 @@ app.post("/", urlencodedParser, function(req, res) {                            
                             bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
                                 if (response == true){
                                     console.log(green+" Successfully Logged in! \x1b[0m ");
+                                    req.session.uname = req.body.uname;
                                     res.redirect("/main.txt");
                                 }
                                 else {
@@ -199,6 +207,17 @@ app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {       
         }
         else {
             console.log(green +'SUCCESFULLY ADDED USER PREFERENCES! \x1b[0m');
+            ssn = req.session;
+            ssn.token = token;
+            console.log(ssn.token);
+            con.query('SELECT * FROM `maindata`.`userdata`WHERE `token` = ?', [token], (err, result, fields) => {
+                if (result.length == 1)
+                {
+                    req.session.uname = result[0].username;
+                }
+                res.redirect("/main.txt");
+            });
+            
         }
         });
 });
@@ -207,8 +226,25 @@ app.get("/profile_setup.mp3/:token", function(req, res) {                       
     res.render("profile_setup", {output: req.params.token});
 });
 
-app.get("/main.txt", function(req, res) {                                                           //T
-    res.render("main");
+app.get("/main.txt", function(req, res) { 
+    if (req.session.uname)
+    {
+        var uname = req.session.uname;
+        con.query('SELECT * FROM `maindata`.`userdata`WHERE `username` = ?', [uname], (err, result, fields) => {
+            if (result.length == 1)
+            {
+                var uname = result[0].username;
+                var fname = result[0].name;
+                var sname = result[0].surname;
+                var email = result[0].email;
+                var code = result[0].code;
+                //F4M3
+            }
+            res.render("main", {uname, fname, sname, email, code});
+        });
+    } else {
+        res.render("index");
+    }                                              //T  
 });
 
 app.listen(8080, function() {                                                                       //T                       
@@ -245,4 +281,4 @@ function evaluateCode(gender, preference) {                                     
         code = code+"11";
     }
     return code;
-}
+};
