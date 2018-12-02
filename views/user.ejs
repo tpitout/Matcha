@@ -1,0 +1,34 @@
+<% include includes %>
+<% include footer %>
+<div class="header">
+    <ul>
+        <li><a class="active" href="/main.txt">HOME</a></li>
+        <li><a class="active" href="/">LOGOUT</a></li>
+    </ul>
+</div>
+<br><br><br>
+<h1>NAME: </h1> 
+<h2><%= name %></h2>
+<h1>USERNAME: </h1>
+<h2><%= uname %></h2>
+<h1>EMAIL: </h1>
+<h2><%= email %></h2>
+<h1>FAME: </h1>
+<h2><%= fame %></h2>
+<div class="title_1">
+<h1><%= bio %></h1>
+</div>
+
+<div class="title_1">
+    <h1>CHAT</h1>
+<% for (i = 0; i < chatlog.length; i++) { %>
+    <h2><%= chatlog[i] %></h2>
+<% } %>
+</div>
+
+<form class="title_2" action="/chat" method="POST">
+    <input type="text" name="chat_1" placeholder="Say Something">
+    <input type="submit" value="submit">
+</form>
+
+<br><br><br>

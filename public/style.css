@@ -2,28 +2,32 @@
 body
 {
     font-family: 'Montserrat';
+    background-image: linear-gradient(to bottom right, #dd4987, #fe884a);
 }
 h1
 {
     font-family: 'Montserrat';
     text-align: center;
-    color: #FF5864;
+    color: white;
+    opacity: 0.8;
 }
 h2
 {
     font-family: 'Montserrat';
     text-align: center;
-    color: #FF5864;
+    color: white;
     font-weight: lighter;
+    opacity: 0.8;
 }
 h3
 {
     font-size: 50px;
     font-family: 'Montserrat';
     text-align: center;
-    color: #FF5864;
+    color: white;
     margin-bottom: 0%;
-    font-weight: bold;
+    font-weight: bolder;
+    opacity: 0.8;
 }
 h4
 {
@@ -38,16 +42,24 @@ h5
     font-size: 1vw;
     font-family: 'Montserrat';
     text-align: center;
-    color: #FF5864;
-    margin-bottom: 0px;
-    margin-bottom: 0px;
-    font-weight: lighter;
+    color: white;
+    margin-bottom: -10px;
+    margin-bottom: -10px;
+    font-weight: bold;
 }
 .title_1
 {
     width: 50%;
     margin: auto;
-    border: 5px solid #FF5864;
+    border: 5px solid white;
+    margin-top: 10px;
+    text-align: center;
+    opacity: 0.8;
+}
+.title_2
+{
+    width: 50%;
+    margin: auto;
     margin-top: 10px;
     text-align: center;
 }
@@ -68,12 +80,10 @@ ul
     font-family: 'Montserrat', sans-serif;
     font-size: 30px;
 }
-
 li 
 {
     float: left;
 }
-
 li a 
 {
     display: block;
@@ -82,12 +92,10 @@ li a
     padding: 14px 16px;
     text-decoration: none;
 }
-
 li a:hover 
 {
     color: rgb(255, 174, 179);
 }
-
 input[type="text"]
 {
     font-family: 'Montserrat', sans-serif;
@@ -124,13 +132,28 @@ input[type="password"]
 input[type="submit"]
 {
     font-family: 'Montserrat', sans-serif;
-    background-color: #FF5864;
+    font-size: bold;
+    background-image: linear-gradient(to right, #dd4987, #dd4987);
     color: white;
     width: 50%;
     height: auto;
     text-align: center;
     padding: 5px 5px;
     font-size: 20px;
+    border-style: none;
+}
+input[type="submit"]:hover
+{
+    font-family: 'Montserrat', sans-serif;
+    font-size: bold;
+    background-image: linear-gradient(to right, #dd4987, #fe884a, #dd4987);
+    color: white;
+    width: 50%;
+    height: auto;
+    text-align: center;
+    padding: 5px 5px;
+    font-size: 20px;
+    border-style: none;
 }
 ::placeholder
 {
@@ -151,8 +174,7 @@ input[type="submit"]
     margin-left: 45%;
     margin-bottom: 6px;
   }
-  
-  /* Hide the browser's default radio button */
+
   .container input {
     position: center;
     opacity: 0;
@@ -161,8 +183,7 @@ input[type="submit"]
     width: auto;
 
   }
-  
-  /* Create a custom radio button */
+
   .checkmark {
     margin-left:45%;
     position: absolute;
@@ -173,29 +194,24 @@ input[type="submit"]
     border-radius: 50%;
   }
   
-  /* On mouse-over, add a grey background color */
   .container:hover input ~ .checkmark {
     background-color: #FF5864;
   }
   
-  /* When the radio button is checked, add a blue background */
   .container input:checked ~ .checkmark {
     background-color: rgb(255, 56, 69);
   }
-  
-  /* Create the indicator (the dot/circle - hidden when not checked) */
+
   .checkmark:after {
     content: "";
     position: absolute;
     display: none;
   }
-  
-  /* Show the indicator (dot/circle) when checked */
+
   .container input:checked ~ .checkmark:after {
     display: block;
   }
   
-  /* Style the indicator (dot/circle) */
   .container .checkmark:after {
     top: 9px;
     left: 9px;
@@ -217,14 +233,18 @@ input[type="submit"]
   .abut
   {
       font-size: 25px;
-      border: 3px SOLID #FF5864;
+      border: 5px SOLID #fb5b67;
       padding: 10px 10px;
-      background-color: rgb(255, 239, 239);
+      background-color: white;
+      opacity: 0.6;
+      font-weight: bold;
+      color: #fb5b67;
   }
   .abut:hover
   {
-      border: 1px SOLID #FF5864;
+      border: 1px SOLID #fb5b67;
       background-color: white;
+      opacity: 1;
   }
   .footer
   {
@@ -237,6 +257,7 @@ input[type="submit"]
     text-align: center;
     padding: 10px 10px; 
     font-family: 'Montserrat', sans-serif;  
+    z-index: 10;
   }
   .swal-overlay {
     background-color: #FF5864;
@@ -265,14 +286,13 @@ input[type="submit"]
     background-color: #FF5864;
     color: white;
     text-align: center;
-    font-family: 'Montserrat', sans-serif;  
+    font-family: 'Montserrat', sans-serif; 
+    z-index: 10; 
 }
 .leftpanel
 {
-    height: 100%;
     color: white;
-    border: 1px solid #FF5864;
-    background-color: white;
+    height: 100%;
     width: 15%;
     float: left;
     margin-left: -10px;
@@ -280,9 +300,6 @@ input[type="submit"]
 .rightpanel
 {
     height: 100%;
-    color: white;
-    border: 1px solid #FF5864;
-    background-color: white;
     width: 15%;
     float: right;
     margin-right: -10px;
@@ -291,11 +308,10 @@ input[type="submit"]
 {
     margin-top: 80px;
     text-align: center;
-    border: 1px solid #FF5864;
     height: 100%; 
     width: auto; 
-    color: #FF5864;
     font-size: 1vw;
+    margin-left: 40%;
 }
 .mainlay
 {
@@ -304,4 +320,17 @@ input[type="submit"]
 .person
 {
     border-bottom: 2px solid #FF5864;
+}
+.profile
+{
+    text-align: center;
+    width: 400px;
+    height: 100px;
+    border: 5px solid white;
+    background-image: linear-gradient(to bottom right, #dd4987, #fe884a);
+    opacity: 0.4;
+}
+.profile:hover
+{
+    opacity: 1;
 }

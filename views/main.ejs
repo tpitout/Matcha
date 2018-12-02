@@ -9,7 +9,8 @@
 </div>
 <div class="mainlay">
   <div class="leftpanel">
-    <h1>USER INFO</h1>
+    <h1 style="margin-bottom: -40px;">USER INFO</h1>
+    <h5>_____________________</h5>
     <h5><%= uname %></h5>
     <h5><%= fname %></h5>
     <h5><%= sname %></h5>
@@ -20,17 +21,17 @@
   <div class="rightpanel">
       <h1>RIGHTPANEL</h1>
     </div>
-
+  
   <div class="middle"> 
-    <% for(i = 0; i < ppl.length; i++) { %>
-    <div class="person">
-    <%=  ppl[i]  %>
+    <br>
+  <% for(i = 0; i < ppl.length; i++) { %>
+    <div class="profile">
+      <a href="http://localhost:8080/user/usr=<%=  ppl[i]  %>"><h5><%=  ppl[i]  %></h5></a>
     </div>
-    <% } %>
-  </div>
-
-
+  <% } %>
+    </div>
 </div>
+
 
 <script>
   navigator.geolocation.getCurrentPosition(function(position){
