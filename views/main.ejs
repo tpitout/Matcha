@@ -15,12 +15,18 @@
     <h5><%= fname %></h5>
     <h5><%= sname %></h5>
     <h5><%= email %></h5>
-    <h5><%= code %> </h5>
+    <h5><%= pref %> </h5>
   </div>
 
   <div class="rightpanel">
-      <h1>RIGHTPANEL</h1>
-    </div>
+      <h1>CHATS</h1>
+      <div class="verscroll">
+      <% for(i = 0; i < log.length; i++) { %>
+        <h2><%= log[i] %></h2>
+      <% } %>
+      </div>
+      <h1>PAGE VIEWS</h1>
+  </div>
   
   <div class="middle"> 
     <br>

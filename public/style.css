@@ -173,6 +173,7 @@ input[type="submit"]:hover
     text-align: left;
     margin-left: 45%;
     margin-bottom: 6px;
+    color: white;
   }
 
   .container input {
@@ -333,4 +334,10 @@ input[type="submit"]:hover
 .profile:hover
 {
     opacity: 1;
+}
+.verscroll
+{
+    overflow-y: scroll;
+    height: 400px;
+    width: auto;
 }

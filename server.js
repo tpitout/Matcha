@@ -71,7 +71,7 @@ con.connect(function(err) {                                                     
                 return;
             }
             console.log(green +" CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT)";
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `gender` VARCHAR(10), `pref` VARCHAR(10), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT)";
             con.query(sql, function (err, result) {
                 if (err){
                     console.log(err);
@@ -83,7 +83,14 @@ con.connect(function(err) {                                                     
                 if (err){
                     console.log(err);
                 }
-                console.log(green +"TABLE CREATED  :   \x1b[33m PageViews \x1b[0m");
+                console.log(green +"TABLE CREATED  :   \x1b[33m CHAT \x1b[0m");
+            });
+            var sql = "CREATE TABLE visitors (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `viewer` VARCHAR(255))";
+            con.query(sql, function (err, result) {
+                if (err){
+                    console.log(err);
+                }
+                console.log(green +"TABLE CREATED  :   \x1b[33m visitors \x1b[0m");
             });
         });
     });
@@ -208,7 +215,7 @@ app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {       
     var code = evaluateCode(req.body.gender, req.body.pref);
     var token = req.params.token;
     token = token.slice(6,38);
-    con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ? WHERE `token` = ?', [code, req.body.bio, req.body.tags, token], (err, result, fields) => {
+    con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ?, `gender` = ?, `pref` = ? WHERE `token` = ?', [code, req.body.bio, req.body.tags, req.body.gender, req.body.pref, token], (err, result, fields) => {
         if (err) {
             console.log(red +'ERROR ON QUERY #5 \x1b[0m', err);
         }
@@ -240,12 +247,14 @@ app.get("/user/:username", function(req, res) {
             var email = result[0].email;
             var bio   = result[0].bio;
             var fame  = result[0].fame;
-            fame = fame + 10;
+            fame = fame + 1;
             con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `email` = ?', [fame, email], (err, result, fields) => {
                 console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
             });
             req.session.viewer = uname;
-            con.query('SELECT * FROM `maindata`.`chat` WHERE `username` = ? AND `viewer` = ?', [req.session.uname, req.session.viewer], (err, re, fields) => {
+            var names =[req.session.uname, req.session.viewer];
+            names.sort();
+            con.query('SELECT * FROM `maindata`.`chat` WHERE `username` = ? ', [names[0]+names[1]], (err, re, fields) => {
                 var chatlog = [];
                 if (re)
                 {
@@ -258,7 +267,8 @@ app.get("/user/:username", function(req, res) {
                     console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
                     
                 }
-                res.render("user", {name, uname, email, bio, fame, chatlog});
+
+                res.render("user", {name, uname, bio, fame, chatlog});
             });
         }       
     });                                                                                 //M
@@ -267,7 +277,9 @@ app.get("/user/:username", function(req, res) {
 app.post("/chat", urlencodedParser, function(req, res) {
     var chat = req.body.chat_1;
     chat = req.session.uname + ": " + req.body.chat_1;
-    con.query('INSERT INTO `maindata`.`chat` (`username`, `viewer`, `message`) VALUES (?,?,?)', [req.session.uname, req.session.viewer, chat], function(err, result, fields){
+    var names =[req.session.uname, req.session.viewer];
+    names.sort();
+    con.query('INSERT INTO `maindata`.`chat` (`username`, `message`) VALUES (?,?)', [names[0]+names[1], chat], function(err, result, fields){
     });
     res.redirect("/user/usr="+req.session.viewer);
 });
@@ -283,16 +295,36 @@ app.get("/main.txt", function(req, res) {
                 var fname = result[0].name;
                 var sname = result[0].surname;
                 var email = result[0].email;
-                var code  = result[0].code;
+                var pref  = result[0].pref;
                 //F4M3
-                con.query('SELECT * FROM `maindata`.`userdata`', (err, resl, fields) => {
+                con.query('SELECT * FROM `maindata`.`userdata` WHERE `gender` = ?', [pref], (err, resl, fields) => {
                     var ppl = [];
-                    for (i = 0; i < resl.length; i++)
+                    if (resl)
                     {
-                        ppl.push(resl[i].username);
-                        console.log(ppl[i]);
+                        for (i = 0; i < resl.length; i++)
+                        {
+                            ppl.push(resl[i].username);
+                            console.log(ppl[i]);
+                        }
                     }
-                    res.render("main", {uname, fname, sname, email, code, ppl});
+                con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
+                    var log = [];
+                    if (respo.length > 0) 
+                    {
+                        for (i = 0; i < respo.length; i++)
+                        {
+                            if (respo[i].username.includes(uname))
+                            {
+                                if (!(respo[i].message.includes(uname)))
+                                {
+                                    log.push(respo[i].message);
+                                }
+                            }
+                        }
+                    }
+                    log.reverse();
+                    res.render("main", {uname, fname, sname, email, pref, ppl, log});
+                });
                 });
             }
         });
