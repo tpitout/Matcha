@@ -29,7 +29,7 @@ const swal =                    require('sweetalert');                          
 const multer =                  require("multer");
 const fs =                      require("fs");
 const favicon =                 require('serve-favicon');
-const jquery =                    require('jquery');
+const jquery =                  require('jquery');
 
 const app = express();                                                                              //T
 const urlencodedParser = bodyParser.urlencoded({ extended: false});                                 //T
@@ -173,7 +173,7 @@ app.post("/register", urlencodedParser, function(req, res) {                    
                 to: req.body.uemail,
                 subject: 'WELCOME TO MATCHA ❤️',
                 html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">'+req.body.ufname+" "+req.body.ulname+
-                "<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/profile_setup.mp3/token="+token+"'>LOGIN</a>"+"</div>"
+                "<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8888/profile_setup.mp3/token="+token+"'>LOGIN</a>"+"</div>"
             };
             con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [req.body.uname], (err, results, fields) => {
                 if (err) {

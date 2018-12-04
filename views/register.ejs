@@ -8,6 +8,7 @@
 <div class="title_1">
 <h1>REGISTER</h1>
 </div>
+
     <div class='title_1' >
     <br>
     <form action="/register" method="post" id="form1">
@@ -26,6 +27,7 @@
         <input type="SUBMIT" onclick="clickAlert()" value="submit">
     </form>
     </div>
+
     <script>
         function clickAlert() {
             var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
@@ -49,8 +51,9 @@
                 swal("ERROR", "DETAILS ARE WRONG", "error");
             }   
     }
-};
+    };
     </script>
+
     <div style="text-align: center;">
         <br><a class="abut" href="/">LOGIN</a>
     </div>
