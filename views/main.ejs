@@ -16,23 +16,43 @@
     <h5><%= sname %></h5>
     <h5><%= email %></h5>
     <h5><%= pref %> </h5>
+    <br><br><br><br>
+    <h1 style="margin-bottom: -40px;">CONNECTED</h1>
+    <h5>_____________________</h5>
+    <div class="verscroll" style="direction:rtl;">
+    <% for (i = 0; i < uliked.length; i++) { %>
+      <a href="http://localhost:8888/user/usr=<%=  uliked[i]  %>"><h5><%= uliked[i] %></h5></a>
+    <% } %>
+    </div>
   </div>
 
   <div class="rightpanel">
       <h1>CHATS</h1>
       <div class="verscroll">
       <% for(i = 0; i < log.length; i++) { %>
-        <h2><%= log[i] %></h2>
+        <% var name = log[i]; %>
+        <% name = name.substring(0, name.indexOf(':')); %>
+       <a href="http://localhost:8888/user/usr=<%=  name  %>"> <h2><%= log[i] %></h2></a>
       <% } %>
       </div>
       <h1>PAGE VIEWS</h1>
+      <div class="verscroll">
+        <% for (i = 0; i < visits.length; i++) { %>
+        <a href="http://localhost:8888/user/usr=<%= visits[i] %>"><h2><%= visits[i] %></h2></a>
+        <% } %>
+      </div>
   </div>
   
   <div class="middle"> 
-    <br>
+  <br>
+  <div class="filter">
+    <form>
+      <h2></h2>
+    </form>
+  </div>
   <% for(i = 0; i < ppl.length; i++) { %>
     <div class="profile">
-      <a href="http://localhost:8080/user/usr=<%=  ppl[i]  %>"><h5><%=  ppl[i]  %></h5></a>
+      <a id="<%= ppl[i] %>" href="http://localhost:8888/user/usr=<%=  ppl[i]  %>"><h5><%=  ppl[i]  %></h5></a>
     </div>
   <% } %>
     </div>

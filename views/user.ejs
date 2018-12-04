@@ -1,11 +1,13 @@
 <% include includes %>
 <% include footer %>
+
 <div class="header">
     <ul>
         <li><a class="active" href="/main.txt">HOME</a></li>
         <li><a class="active" href="/">LOGOUT</a></li>
     </ul>
 </div>
+
 <br><br><br>
 <h1>NAME: </h1> 
 <h2><%= name %></h2>
@@ -13,13 +15,22 @@
 <h2><%= uname %></h2>
 <h1>FAME: </h1>
 <h2><%= fame %></h2>
+
+<form class="title_2" action="/like" method="POST">
+    <div id="ck-button">
+        <label>
+           <input type="checkbox" value="1" name="like" onclick="{this.form.submit()}"><span>LIKE</span>
+        </label>
+     </div>
+</form>
+
 <div class="title_1">
 <h1><%= bio %></h1>
 </div>
 
 <div class="title_1">
     <h1>CHAT</h1>
-<% for (i = 0; i < 1; i++) { %>
+<% for (i = 0; i < chatlog.length; i++) { %>
     <h2><%= chatlog[i] %></h2>
 <% } %>
 </div>
@@ -28,5 +39,6 @@
     <input type="text" name="chat_1" placeholder="Say Something">
     <input type="submit" value="submit">
 </form>
+
 
 <br><br><br>

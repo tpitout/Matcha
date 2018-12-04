@@ -1,4 +1,7 @@
 
+html {
+    scroll-behavior: smooth;
+  }
 body
 {
     font-family: 'Montserrat';
@@ -341,3 +344,57 @@ input[type="submit"]:hover
     height: 400px;
     width: auto;
 }
+
+div label input {
+    text-align: center;
+    float: middle;
+ }
+
+ #ck-button {
+     opacity: 0.7;
+     width: 20%;
+     background-color:#EFEFEF;
+     border:5px solid white;
+     overflow:auto;
+     text-align: center;
+     margin-left: 40%;
+ }
+ 
+ #ck-button {
+     background-color:#EFEFEF;
+     border:1px solid #D0D0D0;
+     overflow:auto;
+     text-align: center;
+     float: middle;
+ }
+ 
+ #ck-button:hover {
+     background-color:#EFEFEF;
+     border:1px solid #dd4987;
+     overflow:auto;
+     color:#dd4987;
+     opacity: 1;
+ }
+ 
+ #ck-button label {
+     width:4.0em;
+     text-align: center;
+ }
+ 
+ #ck-button label span {
+     text-align:center;
+     padding:3px 0px;
+     display:block;
+ }
+ 
+ #ck-button label input {
+     text-align: center;
+     position:absolute;
+     top:-20px;
+ }
+ 
+ #ck-button input:checked + span {
+     background-color:#dd4987;
+     color:#fff;
+     opacity: 1;
+ }
