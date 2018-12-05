@@ -265,11 +265,9 @@ app.get("/user/:username", function(req, res) {
             fame = fame + 1;
             
             con.query('INSERT INTO `maindata`.`visitors` (`username`, `viewer`) VALUES (?,?)', [uname, req.session.uname], function(err, result, fields){
-                console.log("x0x0x0x0x0x0x0x0x0x0x0x 0       " + req.session.viewer);
-                console.log("x0x0x0x0x0x0x0x0x0x0x0x 0       " + req.session.uname);
+                console.log("======================= |       " + req.session.viewer);
+                console.log("======================= |       " + req.session.uname);
             });
-
-            
             con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `email` = ?', [fame, email], (err, result, fields) => {
                 console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
             });
