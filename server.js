@@ -16,39 +16,40 @@
     Run XAMPP or MAMP APACHE/MySQL
 */
 
-const express =                 require('express');                     //Include Express           //T
-const ejs =                     require('ejs');                         //Include EJS               //T
-const bodyParser =              require('body-parser');                 //body-parser               //T
-const mysql =                   require('mysql');                       //mySQL                     //T
-const bcrypt =                  require('bcrypt');                      //Encryption                //T
-const session =                 require('express-session');             //Sessions               //T
-const cookie =                  require('cookie-parser');               //Cookie                 //T
-const nodemailer =              require('nodemailer');                  //Nodemailer for Email      //T
-const crypto =                  require('crypto');                      //Token generator           //M
-const swal =                    require('sweetalert');                                              //T
+const express =                 require('express');                     //Include Express          
+const ejs =                     require('ejs');                         //Include EJS               
+const bodyParser =              require('body-parser');                 //body-parser               
+const mysql =                   require('mysql');                       //mySQL                     
+const bcrypt =                  require('bcrypt');                      //Encryption              
+const session =                 require('express-session');             //Sessions                 
+const cookie =                  require('cookie-parser');               //Cookie                   
+const nodemailer =              require('nodemailer');                  //Nodemailer for Email     
+const crypto =                  require('crypto');                      //Token generator          
+const swal =                    require('sweetalert');                                          
 const multer =                  require("multer");
 const fs =                      require("fs");
 const favicon =                 require('serve-favicon');
 const jquery =                  require('jquery');
+const dateTime =                require('node-datetime');
 
-const app = express();                                                                              //T
-const urlencodedParser = bodyParser.urlencoded({ extended: false});                                 //T
+const app = express();                                                                          
+const urlencodedParser = bodyParser.urlencoded({ extended: false});                                 
 
-var red = "❌ \x1b[1m \x1b[31m";                                                                   //T
-var green = "✅ \x1b[1m \x1b[32m";                                                                 //T
+var red = "❌ \x1b[1m \x1b[31m";                                                             
+var green = "✅ \x1b[1m \x1b[32m";                                                          
 
-app.use(express.static(__dirname + '/public'));                                                    //T
-app.set('view engine', 'ejs');                                                                     //T
+app.use(express.static(__dirname + '/public'));                                                 
+app.set('view engine', 'ejs');                                                                   
 
 app.use(session({secret:'TREDX'}));
 
-var con = mysql.createConnection({                                                                 //T
+var con = mysql.createConnection({                                                               
     host: "localhost",
     user: "root",
     password: "123"
 });
 
-con.connect(function(err) {                                                                        //M
+con.connect(function(err) {                                                                        
     if (err){
         console.log(err);
     }
@@ -58,7 +59,7 @@ con.connect(function(err) {                                                     
             console.log(red+err+" \x1b[0m");
             return;
         }
-        console.log(green + "DATABASE CREATED : \x1b[33m MAINDATA \x1b[0m");                        //M
+        console.log(green + "DATABASE CREATED : \x1b[33m MAINDATA \x1b[0m");                        
         var con = mysql.createConnection({
             host: "localhost",
             user: "root",
@@ -66,13 +67,13 @@ con.connect(function(err) {                                                     
             database: "maindata"
         });
 
-        con.connect(function(err) {                                                                 //M
+        con.connect(function(err) {                                                                 
             if (err){
                 console.log(red+ " DATABASE ALREADY EXIST'S \x1b[0m");
                 return;
             }
             console.log(green +" CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `gender` VARCHAR(10), `pref` VARCHAR(10), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT)";
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `gender` VARCHAR(10), `pref` VARCHAR(10), `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT, `lonline` DATETIME)";
             con.query(sql, function (err, result) {
                 if (err){
                     console.log(err);
@@ -105,7 +106,7 @@ con.connect(function(err) {                                                     
     });
 });
 
-var transporter = nodemailer.createTransport({                                                     //T
+var transporter = nodemailer.createTransport({                                                    
     service: 'gmail',
     auth: {
       user: 'official.matcha@gmail.com',
@@ -116,17 +117,17 @@ var transporter = nodemailer.createTransport({                                  
     }
 });
 
-app.get("/", function(req, res) {                                                                  //T                                 
+app.get("/", function(req, res) {                                                                                                  
     res.render("index");
 });
 
-app.post("/", urlencodedParser, function(req, res) {                                               //T-M
+app.post("/", urlencodedParser, function(req, res) {                                              
     var success = "/";               
     console.log(req.body);                              
-    if (req.body.uname && req.body.upsw)                                                            //T        
+    if (req.body.uname && req.body.upsw)                                                                 
     {
-        con.query('SELECT * FROM `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {      //T
-            if (result.length == 1)                                                                 //T
+        con.query('SELECT * FROM `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {   
+            if (result.length == 1)                                                               
             {
                 con.query('SELECT `password` from `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function(err, result, fields) {
                     if (err) {
@@ -140,6 +141,8 @@ app.post("/", urlencodedParser, function(req, res) {                            
                             bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
                                 if (response == true){
                                     console.log(green+" Successfully Logged in! \x1b[0m ");
+                                    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function(err, result, fields) {
+                                    });
                                     req.session.uname = req.body.uname;
                                     res.redirect("/main.txt");
                                 }
@@ -155,20 +158,20 @@ app.post("/", urlencodedParser, function(req, res) {                            
     }
 });
 
-app.get("/register.jpeg", function(req, res) {                                                      //T
+app.get("/register.jpeg", function(req, res) {                                                   
     res.render("register");
 });
 
-app.post("/register", urlencodedParser, function(req, res) {                                        //T-M
-    console.log(req.body);                                                                          //T
-    const errors = validateReg(req);                                                                //T
-    if (errors.length == 0) {                                                                       //T
-        bcrypt.hash(req.body.upsw, 8, (err, hash) => {                                              //M
+app.post("/register", urlencodedParser, function(req, res) {                                      
+    console.log(req.body);                                                                      
+    const errors = validateReg(req);                                                               
+    if (errors.length == 0) {                                                                      
+        bcrypt.hash(req.body.upsw, 8, (err, hash) => {                                           
             if (err){
                 return console.log(red + " UNABLE TO HASH \x1b[0m", err);
             }
-            token = crypto.randomBytes(16).toString(`hex`);                                         //M
-            var mailOptions = {                                                                     //T
+            token = crypto.randomBytes(16).toString(`hex`);                                        
+            var mailOptions = {                                                                  
                 from: 'official.matcha@gmail.com',
                 to: req.body.uemail,
                 subject: 'WELCOME TO MATCHA ❤️',
@@ -211,7 +214,7 @@ app.post("/register", urlencodedParser, function(req, res) {                    
                 else {
                     console.log(red + 'USERNAME EXISTS IN DATABASE \x1b[0m');
                 }
-            })                                                                                      //M
+            })                                                                                    
         })
     }
     else {
@@ -219,7 +222,7 @@ app.post("/register", urlencodedParser, function(req, res) {                    
     }
 });
 
-app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {                           //M
+app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {                         
     console.log(req.body);
     var code = evaluateCode(req.body.gender, req.body.pref);
     var token = req.params.token;
@@ -242,7 +245,7 @@ app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {       
         });
 });
 
-app.get("/profile_setup.mp3/:token", function(req, res) {                                           //M
+app.get("/profile_setup.mp3/:token", function(req, res) {                                           
     res.render("profile_setup", {output: req.params.token});
 });
 
@@ -256,6 +259,8 @@ app.get("/user/:username", function(req, res) {
             var email = result[0].email;
             var bio   = result[0].bio;
             var fame  = result[0].fame;
+            var online  = result[0].online;
+            var lonline = result[0].lonline;
             fame = fame + 1;
             
             con.query('INSERT INTO `maindata`.`visitors` (`username`, `viewer`) VALUES (?,?)', [uname, req.session.uname], function(err, result, fields){
@@ -270,6 +275,7 @@ app.get("/user/:username", function(req, res) {
             req.session.viewer = uname;
             var names =[req.session.uname, req.session.viewer];
             names.sort();
+
             con.query('SELECT * FROM `maindata`.`chat` WHERE `username` = ? ', [names[0]+names[1]], (err, re, fields) => {
                 var chatlog = [];
                 if (re)
@@ -283,11 +289,51 @@ app.get("/user/:username", function(req, res) {
                     console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
                     
                 }
-
-                res.render("user", {name, uname, bio, fame, chatlog});  
+                console.log(green+ lonline);
+                var f1 = "";
+                var f2 = "";
+                var chat = 0;
+                con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.uname], (err, reslt, fields) => {
+                    console.log("................. " +reslt.length);
+                    if (reslt)
+                    {
+                        for (i = 0; i < reslt.length; i++)
+                        {
+                            if (reslt[i].liked = req.session.viewer);
+                            {
+                                f1 = "yes";
+                                console.log("===========  : " + f1);
+                            }
+                        }
+                        console.log("xxxxxxxxxxxxxxxx=> "+f1);
+                    }
+                    con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.viewer], (err, reslt2, fields) => {
+                        console.log("................  " +reslt2.length);
+                        if (reslt2)
+                        {
+                            for (i = 0; i < reslt2.length; i++)
+                            {
+                                if (reslt[i].liked = req.session.uname);
+                                {
+                                    f2 = "yes";
+                                    console.log("===========  : " + f2);
+                                }
+                            }
+                        }
+                        console.log("__________________ => "+f1+"  "+f2);
+                        if ((f1 == "yes") && (f2 == "yes"))
+                        {
+                            chat = 1;
+                        } else {
+                            chat = 0;
+                        }
+                        console.log("----------------   =   " +chat);
+                        res.render("user", {name, uname, bio, fame, chatlog, online, lonline, chat});
+                    });
+                });         
             });
         }       
-    });                                                                                 //M
+    });                                                                               
 });
 
 app.post("/chat", urlencodedParser, function(req, res) {
@@ -314,6 +360,18 @@ app.post("/like", urlencodedParser, function(req, res) {
             con.query('DELETE FROM `maindata`.`likes` WHERE `username` = ? AND `liked` = ?', [req.session.uname, req.session.viewer], function(err, result, fields){
             });
         }
+    });
+    
+    res.redirect("/user/usr="+req.session.viewer);
+});
+
+app.post("/report", urlencodedParser, function(req, res) {
+    console.log("XXXXXX    reported ;");
+    var report = 1;
+    con.query('SELECT * FROM `maindata`.`userdata` where `username` = ? ', [req.session.viewer], function(err, res, fields){
+        report = report + (res[0].reports);
+        con.query('UPDATE `maindata`.`userdata` SET `reports` = ? WHERE `username` = ?', [report, req.session.viewer], function(err, result, fields){
+        });
     });
     
     res.redirect("/user/usr="+req.session.viewer);
@@ -358,21 +416,24 @@ app.get("/main.txt", function(req, res) {
                     log.reverse();
                     con.query('SELECT * FROM `maindata`.`visitors` WHERE `username` = ?', [uname], (err, respon, fields) => {
                         var visits = [];
+                        
                         if (respon)
                         {
                             for (i = 0; i < respon.length; i++)
                             {
                                 visits.push(respon[i].viewer);
+
                             }
                         }
                         var u1 = [];
                         var u2 = [];      
-                        var uliked = [];                       
+                        var uliked = [];     
+                                        
                         con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.uname], (err, resul, fields) => {
                                                                                                 
                             for (i = 0; i < resul.length; i++)
                             {
-                                u1.push(resul[i].liked);                                
+                                u1.push(resul[i].liked);                              
                             }
                             con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uname], (err, reslt, fields) => {
                             for (i = 0; i < reslt.length; i++)
@@ -386,10 +447,20 @@ app.get("/main.txt", function(req, res) {
                                    uliked.push(u1[i]);                                   
                                }
                             }     
-                            console.log(uliked);
-                            res.render("main", {uname, fname, sname, email, pref, ppl, log, visits, uliked});                                            
+                            var visithis = [];  
+                            console.log("------------------------------------  " + req.session.uname);
+                            con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer` = ?', [req.session.uname], (err, j, fields) => {
+                                console.log(j);
+                                for (i = 0; i < j.length; i++)
+                                {
+                                    visithis.push(j[i].username);
+                                    console.log(visithis[i]);
+                                }
+                                visithis.reverse();
+                                res.render("main", {uname, fname, sname, email, pref, ppl, log, visits, uliked, visithis});
                             });
-                            console.log(uliked);
+                                                                        
+                            });
                             
                         });
                         
@@ -400,14 +471,25 @@ app.get("/main.txt", function(req, res) {
         });
     } else {
         res.render("index");
-    }                                              //T  
+    }                                              
 });
 
-app.listen(8888, function() {                                                                       //T                       
+app.get("/logout", function(req, res) {      
+    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["offline", req.session.uname], function(err, result, fields) {
+    });  
+    var dt = dateTime.create();
+    var formatted = dt.format('Y-m-d H:M:S');
+    con.query("UPDATE `maindata`.`userdata` SET `lonline` = ? WHERE `username` = ?", [formatted, req.session.uname], function(err, result, fields) {
+    });
+    console.log("LOGOUT");
+    res.redirect("/");                             
+});
+
+app.listen(8888, function() {                                                                                          
     console.log(green + "SERVER LAUNCHED :: \x1b[33m PORT: 8888 \x1b[0m");
 });
 
-function validateReg(req) {                                                                         //T
+function validateReg(req) {                                                                         
     const errors = [];
     if (req.body.upsw != req.body.upsw2) {
         errors.push("Passwords Do not match!");
@@ -415,7 +497,7 @@ function validateReg(req) {                                                     
     return errors;
 };
 
-function evaluateCode(gender, preference) {                                                         //M
+function evaluateCode(gender, preference) {                                                        
     var code;
 
     if (gender == "male"){

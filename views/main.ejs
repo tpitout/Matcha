@@ -4,7 +4,7 @@
 <div class="header">
 <ul>
     <li><a class="active" href="/main.txt">HOME</a></li>
-    <li><a class="active" href="/">LOGOUT</a></li>
+    <li><a class="active" href="/logout">LOGOUT</a></li>
 </ul>
 </div>
 
@@ -17,7 +17,7 @@
     <h5><%= sname %></h5>
     <h5><%= email %></h5>
     <h5><%= pref %> </h5>
-    <br><br><br><br>
+    <br>
     <h1 style="margin-bottom: -40px;">CONNECTED</h1>
     <h5>_____________________</h5>
     <div class="verscroll" style="direction:rtl;">
@@ -25,10 +25,18 @@
       <a href="http://localhost:8888/user/usr=<%=  uliked[i]  %>"><h5><%= uliked[i] %></h5></a>
     <% } %>
     </div>
+    <h1 style="margin-bottom: -40px;">VISIT HISTORY</h1>
+    <h5>_____________________</h5><br>
+    <div class="verscroll" style="direction:rtl;height:200px;">
+      <% for (i = 0; i < visithis.length; i++) { %>
+        <a href="http://localhost:8888/user/usr=<%=  visithis[i]  %>"><h5><%= visithis[i] %></h5></a>
+      <% } %>
+      </div>
   </div>
 
   <div class="rightpanel">
-      <h1>CHATS</h1>
+      <h1 style="margin-bottom: -40px;">CHATS</h1>
+      <h5>_____________________</h5>
       <div class="verscroll">
       <% for(i = 0; i < log.length; i++) { %>
         <% var name = log[i]; %>
@@ -36,7 +44,8 @@
        <a href="http://localhost:8888/user/usr=<%=  name  %>"> <h2><%= log[i] %></h2></a>
       <% } %>
       </div>
-      <h1>PAGE VIEWS</h1>
+      <h1 style="margin-bottom: -40px;">PAGE VIEWS</h1>
+      <h5>_____________________</h5>
       <div class="verscroll">
         <% for (i = 0; i < visits.length; i++) { %>
         <a href="http://localhost:8888/user/usr=<%= visits[i] %>"><h2><%= visits[i] %></h2></a>
