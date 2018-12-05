@@ -250,6 +250,7 @@ app.get("/profile_setup.mp3/:token", function(req, res) {
 });
 
 app.get("/user/:username", function(req, res) {
+    console.log("\x1b[1m \x1b[46m /USER/ \x1b[0m"); 
     var name = req.params.username;
     name = name.slice(4);
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [name], (err, result, fields) => {
@@ -347,7 +348,7 @@ app.post("/chat", urlencodedParser, function(req, res) {
 });
 
 app.post("/like", urlencodedParser, function(req, res) {
-    console.log("XXXXXX    LIKED ;");
+    console.log(red+"+++++++++++++++++++++++++");
     con.query('SELECT * FROM `maindata`.`likes` where `username` = ? AND `liked` = ?', [req.session.uname, req.session.viewer], function(err, res, fields){
         console.log(res.length);
         if (res == 0)
@@ -356,7 +357,6 @@ app.post("/like", urlencodedParser, function(req, res) {
             });
         } else
         {
-            console.log(")))))))))))))))))))))))))))))))))");
             con.query('DELETE FROM `maindata`.`likes` WHERE `username` = ? AND `liked` = ?', [req.session.uname, req.session.viewer], function(err, result, fields){
             });
         }
