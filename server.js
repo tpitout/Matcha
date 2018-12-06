@@ -215,32 +215,63 @@ app.post("/register", urlencodedParser, function(req, res) {
     }
 });
 
-app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {                         
+app.post("/profile_setup/:token" , urlencodedParser, function(req, res1) {                         
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
-    var code = evaluateCode(req.body.gender, req.body.pref);
     var token = req.params.token;
-    token = token.slice(6,38);
-    con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ?, `gender` = ?, `pref` = ? WHERE `token` = ?', [code, req.body.bio, req.body.tags, req.body.gender, req.body.pref, token], (err, result, fields) => {
-        if (err) {
-            console.log(red +'ERROR ON QUERY #5 \x1b[0m', err);
-        }
-        else {
-            console.log(green +'SUCCESFULLY ADDED USER PREFERENCES! \x1b[0m');
-            con.query('SELECT * FROM `maindata`.`userdata`WHERE `token` = ?', [token], (err, result, fields) => {
-                if (result.length == 1)
-                {
-                    req.session.uname = result[0].username;
-                }
-                res.redirect("/main.txt");
-            });
+    con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
+        console.log(token);
+        console.log(res[0]);
+        if (res[0].code)
+        {
+            var uname = (req.body.uname) ? req.body.uname : res[0].username;
+            var fname = (req.body.fname) ? req.body.fname : res[0].name;
+            var sname = (req.body.sname) ? req.body.sname : res[0].surname;
+            var email = (req.body.email) ? req.body.email : res[0].email;
+            var bio = (req.body.bio) ? req.body.bio : res[0].bio;
+            var tags = (req.body.tags) ? req.body.tags : res[0].tags;
+            var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
+            var code = evaluateCode(req.body.gender, req.body.pref);
+            console.log(code);
             
+            con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
+                res1.redirect("/");
+            });
+        } else {
+            var code = evaluateCode(req.body.gender, req.body.pref);
+            con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ? WHERE `token` = ?', [code, req.body.bio, req.body.tags, token], (err, result, fields) => {
+                if (err) {
+                    console.log(red +'ERROR ON QUERY #5 \x1b[0m', err);
+                }
+                else {
+                    console.log(green +'SUCCESFULLY ADDED USER PREFERENCES! \x1b[0m');
+                    con.query('SELECT * FROM `maindata`.`userdata`WHERE `token` = ?', [token], (err, result, fields) => {
+                        if (result.length == 1)
+                        {
+                            req.session.uname = result[0].username;
+                        }
+                        con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function(err, result, fields) {
+                        });
+                        res1.redirect("/main.txt");
+                    });
+                }
+                });
+
         }
-        });
+     })
+    
 });
 
 app.get("/profile_setup.mp3/:token", function(req, res) { 
-    console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");                                          
-    res.render("profile_setup", {output: req.params.token});
+    console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");  
+    var token = req.params.token;
+    var f;
+    con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, r, fields) => {
+        if (r[0].code)
+        {
+            f = 1;
+        }
+        res.render("profile_setup", {f, output: req.params.token});
+    });                                        
 });
 
 app.get("/user/:username", function(req, res) {
@@ -382,6 +413,7 @@ app.get("/main.txt", function(req, res) {
                 var sname = result[0].surname;
                 var email = result[0].email;
                 var pref  = result[0].pref;
+                var token = result[0].token;
                 con.query('SELECT * FROM `maindata`.`userdata` WHERE `gender` = ?', [pref], (err, resl, fields) => {
                     var ppl = [];
                     if (resl)
@@ -450,7 +482,7 @@ app.get("/main.txt", function(req, res) {
                                     console.log(visithis[i]);
                                 }
                                 visithis.reverse();
-                                res.render("main", {uname, fname, sname, email, pref, ppl, log, visits, uliked, visithis});
+                                res.render("main", {uname, fname, sname, email, pref, ppl, log, visits, uliked, visithis, token});
                             });
                                                                         
                             });
