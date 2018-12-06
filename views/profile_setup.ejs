@@ -9,52 +9,52 @@
 <% } %>
 <div class="title_1">
     <form id="usrform" method="POST" action="/profile_setup/<%= output %>">
-       
+
         <% if (f) { %>
-            <h2>USERNAME</h2>
-            <input type="text" name="uname" placholder="Enter Username">
-            <h2>NAME</h2>
-            <input type="text" name="fname" placholder="Enter name">
-            <h2>SURNAME</h2>
-            <input type="text" name="sname" placholder="Enter Surname">
-            <h2>Email</h2>
-            <input type="email" name="email" placholder="Enter Email">
-            <h2>Password</h2>
-            <input type="password" name="psw" placholder="Enter Password">
+        <h2>USERNAME</h2>
+        <input type="text" name="uname" placholder="Enter Username">
+        <h2>NAME</h2>
+        <input type="text" name="fname" placholder="Enter name">
+        <h2>SURNAME</h2>
+        <input type="text" name="sname" placholder="Enter Surname">
+        <h2>Email</h2>
+        <input type="email" name="email" placholder="Enter Email">
+        <h2>Password</h2>
+        <input type="password" name="psw" placholder="Enter Password">
         <% } %>
         <h2>CHOOSE A GENDER</h2>
-            <label class="container">
+        <label class="container">
             <input type="radio" name="gender" value="male" checked="true">Male
             <span class="checkmark"></span>
-            </label>
-            <label class="container">
-            <input type="radio" name="gender" value="female" >Female
+        </label>
+        <label class="container">
+            <input type="radio" name="gender" value="female">Female
             <span class="checkmark"></span>
-            </label>
+        </label>
         <h2>CHOOSE SEXUAL PREFERENCE</h2>
-            <label class="container">
+        <label class="container">
             <input type="radio" checked="true" name="pref" value="female">Both
             <span class="checkmark"></span>
-            </label>
-            <label class="container">
+        </label>
+        <label class="container">
             <input type="radio" name="pref" value="male">Male
             <span class="checkmark"></span>
-            </label>
-            <label class="container">
+        </label>
+        <label class="container">
             <input type="radio" name="pref" value="female">Female
             <span class="checkmark"></span>
-            </label>
-            <label class="container">
+        </label>
+        <label class="container">
             <input type="radio" name="pref" value="none">Asexual
             <span class="checkmark"></span>
-            </label>
+        </label>
         <H2>ENTER YOUR BIO</H2>
-            <textarea rows="4" cols="50" name="bio" form="usrform" <% if (!f) { %>required <% } %>></textarea>
+        <textarea rows="4" cols="50" name="bio" form="usrform" <% if (!f) { %>required <% } %>></textarea>
         <H2>ENTER TAGS STARTING WITH # AND SEPERATED BY SPACES</H2>
-            <textarea rows="4" cols="50" name="tags" form="usrform" <% if (!f) { %>required <% } %>></textarea>
+        <textarea rows="4" cols="50" name="tags" form="usrform" <% if (!f) { %>required <% } %>></textarea>
         <% if (!f) { %>
         <H2>UPLOAD IMAGES</H2>
-            <input type="file" name="myFile" required><br><br>
+        <input type="file" name="myFile" required><br><br>
         <% } %>
         <br>
         <input type="submit" value="submit">

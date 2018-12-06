@@ -6,10 +6,10 @@
 </div>
 <h3>MATCHA</h3>
 <div class="title_1">
-<h1>REGISTER</h1>
+    <h1>REGISTER</h1>
 </div>
 
-    <div class='title_1' >
+<div class='title_1'>
     <br>
     <form action="/register" method="post" id="form1">
         <h2>ENTER USERNAME</h2>
@@ -21,39 +21,38 @@
         <h2>ENTER EMAIL</h2>
         <input type="email" name="uemail" id="email" placeholder="ENTER YOUR EMAIL HERE" required>
         <h2>ENTER PASSWORD</h2>
-        <input type="password" name="upsw" id="1" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$" placeholder="ENTER YOUR PASSWORD" required>
+        <input type="password" name="upsw" id="1" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$" placeholder="ENTER YOUR PASSWORD"
+            required>
         <h2>ENTER PASSWORD AGAIN</h2>
-        <input type="password" name="upsw2" id="2" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$" placeholder="ENTER YOUR PASSWORD" required>
+        <input type="password" name="upsw2" id="2" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$" placeholder="ENTER YOUR PASSWORD"
+            required>
         <input type="SUBMIT" onclick="clickAlert()" value="submit">
     </form>
-    </div>
+</div>
 
-    <script>
-        function clickAlert() {
-            var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
-            
-    if (document.getElementById("uname").value && document.getElementById("name").value && document.getElementById("email").value && document.getElementById("surname").value && document.getElementById("1").value && document.getElementById("2").value)
-    {
-        console.log((patt.test(document.getElementById("1").value)));
-        
-            if ((document.getElementById("1").value == document.getElementById("2").value))
-            {
+<script>
+    function clickAlert() {
+        var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
+
+        if (document.getElementById("uname").value && document.getElementById("name").value && document.getElementById(
+                "email").value && document.getElementById("surname").value && document.getElementById("1").value &&
+            document.getElementById("2").value) {
+            console.log((patt.test(document.getElementById("1").value)));
+
+            if ((document.getElementById("1").value == document.getElementById("2").value)) {
                 console.log("2");
-                if ((patt.test(document.getElementById("1").value)))
-                {
+                if ((patt.test(document.getElementById("1").value))) {
                     console.log("5");
                     swal("SUCCESS", "CHECK YOUR EMAIL", "success");
                 }
-            }
-            else 
-            {
+            } else {
                 console.log("Password DOesnt match");
                 swal("ERROR", "DETAILS ARE WRONG", "error");
-            }   
-    }
+            }
+        }
     };
-    </script>
+</script>
 
-    <div style="text-align: center;">
-        <br><a class="abut" href="/">LOGIN</a>
-    </div>
+<div style="text-align: center;">
+    <br><a class="abut" href="/">LOGIN</a>
+</div>
