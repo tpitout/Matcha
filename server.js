@@ -5,13 +5,10 @@
     npm install body-parser         --save
     npm install bcrypt              --save
     npm install express-session     --save
-    npm install mongodb@2.2.5       --save
     npm install cookie-parser       --save
     npm install mysql               --save
     npm install nodemailer          --save
     npm install sweetalert          --save
-    npm install server-favicon      --save
-    npm install favicon             --save
 
     Run XAMPP or MAMP APACHE/MySQL
 */
@@ -26,10 +23,6 @@ const cookie =                  require('cookie-parser');               //Cookie
 const nodemailer =              require('nodemailer');                  //Nodemailer for Email     
 const crypto =                  require('crypto');                      //Token generator          
 const swal =                    require('sweetalert');                                          
-const multer =                  require("multer");
-const fs =                      require("fs");
-const favicon =                 require('serve-favicon');
-const jquery =                  require('jquery');
 const dateTime =                require('node-datetime');
 
 const app = express();                                                                          
@@ -223,7 +216,7 @@ app.post("/register", urlencodedParser, function(req, res) {
 });
 
 app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {                         
-    console.log(req.body);
+    console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
     var code = evaluateCode(req.body.gender, req.body.pref);
     var token = req.params.token;
     token = token.slice(6,38);
@@ -245,12 +238,13 @@ app.post("/profile_setup/:token" , urlencodedParser, function(req, res) {
         });
 });
 
-app.get("/profile_setup.mp3/:token", function(req, res) {                                           
+app.get("/profile_setup.mp3/:token", function(req, res) { 
+    console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");                                          
     res.render("profile_setup", {output: req.params.token});
 });
 
 app.get("/user/:username", function(req, res) {
-    console.log("\x1b[1m \x1b[46m /USER/ \x1b[0m"); 
+    console.log("\x1b[1m \x1b[46m =======  USER  ======= \x1b[0m"); 
     var name = req.params.username;
     name = name.slice(4);
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [name], (err, result, fields) => {
@@ -306,13 +300,13 @@ app.get("/user/:username", function(req, res) {
                         }
                         console.log("xxxxxxxxxxxxxxxx=> "+f1);
                     }
-                    con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.viewer], (err, reslt2, fields) => {
+                     con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.viewer], (err, reslt2, fields) => {
                         console.log("................  " +reslt2.length);
                         if (reslt2)
                         {
                             for (i = 0; i < reslt2.length; i++)
                             {
-                                if (reslt[i].liked = req.session.uname);
+                                if (reslt2[i].liked = req.session.uname);
                                 {
                                     f2 = "yes";
                                     console.log("===========  : " + f2);
@@ -336,6 +330,7 @@ app.get("/user/:username", function(req, res) {
 });
 
 app.post("/chat", urlencodedParser, function(req, res) {
+    console.log("\x1b[1m \x1b[46m =======  CHAT  ======= \x1b[0m");
     var chat = req.body.chat_1;
     chat = req.session.uname + ": " + req.body.chat_1;
     var names =[req.session.uname, req.session.viewer];
@@ -346,9 +341,8 @@ app.post("/chat", urlencodedParser, function(req, res) {
 });
 
 app.post("/like", urlencodedParser, function(req, res) {
-    console.log(red+"+++++++++++++++++++++++++");
+    console.log("\x1b[1m \x1b[46m =======  LIKE  ======= \x1b[0m");
     con.query('SELECT * FROM `maindata`.`likes` where `username` = ? AND `liked` = ?', [req.session.uname, req.session.viewer], function(err, res, fields){
-        console.log(res.length);
         if (res == 0)
         {
             con.query('INSERT INTO `maindata`.`likes` (`username`, `liked`) VALUES (?,?)', [req.session.uname, req.session.viewer], function(err, result, fields){
@@ -364,7 +358,7 @@ app.post("/like", urlencodedParser, function(req, res) {
 });
 
 app.post("/report", urlencodedParser, function(req, res) {
-    console.log("XXXXXX    reported ;");
+    console.log("\x1b[1m \x1b[46m =======  REPORT  ======= \x1b[0m");
     var report = 1;
     con.query('SELECT * FROM `maindata`.`userdata` where `username` = ? ', [req.session.viewer], function(err, res, fields){
         report = report + (res[0].reports);
@@ -375,7 +369,8 @@ app.post("/report", urlencodedParser, function(req, res) {
     res.redirect("/user/usr="+req.session.viewer);
 });
 
-app.get("/main.txt", function(req, res) { 
+app.get("/main.txt", function(req, res) {
+    console.log("\x1b[1m \x1b[46m =======  MAIN  ======= \x1b[0m");
     if (req.session.uname)
     {
         var uname = req.session.uname;
@@ -472,7 +467,8 @@ app.get("/main.txt", function(req, res) {
     }                                              
 });
 
-app.get("/logout", function(req, res) {      
+app.get("/logout", function(req, res) {
+    console.log("\x1b[1m \x1b[46m =======  LOGOUT  ======= \x1b[0m");      
     con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["offline", req.session.uname], function(err, result, fields) {
     });  
     var dt = dateTime.create();
