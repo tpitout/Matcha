@@ -218,7 +218,9 @@ app.post("/register", urlencodedParser, function(req, res) {
 app.post("/profile_setup/:token" , urlencodedParser, function(req, res1) {                         
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
     var token = req.params.token;
+    token = token.slice(6);
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
+        
         console.log(token);
         console.log(res[0]);
         if (res[0].code)
@@ -264,6 +266,8 @@ app.post("/profile_setup/:token" , urlencodedParser, function(req, res1) {
 app.get("/profile_setup.mp3/:token", function(req, res) { 
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");  
     var token = req.params.token;
+    token = token.slice(6);
+    console.log(token);
     var f;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, r, fields) => {
         if (r[0].code)

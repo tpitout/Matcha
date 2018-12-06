@@ -2,11 +2,11 @@
 <% include footer %>
 
 
-
+<% if (f) { %>
 <ul>
     <li><a class="active" href="/main.txt">Home</a></li>
 </ul>
-
+<% } %>
 <div class="title_1">
     <form id="usrform" method="POST" action="/profile_setup/<%= output %>">
        
