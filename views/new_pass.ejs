@@ -1,0 +1,42 @@
+<% include includes %>
+<% include footer %>
+
+<div>
+    <br>
+</div>
+<h3>MATCHA</h3>
+<div class="title_1">
+    <h1>NEW PASSWORD</h1>
+</div>
+<div class='title_1' id="form1">
+    <br>
+    <form action="/new_pass/<%= output %>" method="post">
+        <h2>ENTER NEW PASSWORD</h2>
+        <input type="password" name="upsw" id="1" placeholder="ENTER YOUR PASSWORD HERE" required>
+        <h2>RE-ENTER NEW PASSWORD</h2>
+        <input type="password" name="upsw2" id="2" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$" placeholder="ENTER YOUR PASSWORD HERE" required>
+        <input type="SUBMIT" onclick="clickAlert()" value="submit">
+    </form>
+    </div>
+    <script>
+        function clickAlert() {
+            var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
+            if ((document.getElementById("1").value == document.getElementById("2").value))
+            {
+                if ((patt.test(document.getElementById("1").value)))
+                {
+                    console.log("5");
+                    swal("SUCCESS", "CHECK YOUR EMAIL", "success");
+            document.getElementById("form1").submit();
+                }
+            }
+            else 
+            {
+                console.log("Password DOesnt match");
+                swal("ERROR", "DETAILS ARE WRONG", "error");
+            }
+        };
+    </script>
+    <div style="text-align: center;">
+        <br><a class="abut" href="/">BACK</a>
+</div>

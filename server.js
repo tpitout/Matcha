@@ -23,7 +23,9 @@ const cookie = require('cookie-parser');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const swal = require('sweetalert');
+const multer = require("multer");
 const dateTime = require('node-datetime');
+const path = require('path');
 
 
 const app = express();
@@ -41,6 +43,21 @@ app.set('view engine', 'ejs');
 app.use(session({
     secret: 'TREDX'
 }));
+
+const storage = multer.diskStorage({
+    destination: './public/uploads/',
+    filename: function(req, file, cb){
+        cb(null, file.fieldnam + '.' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits:{fileSize: 1000000},
+    fileFilter: function(req, file, cb){
+        checkFileType(file, cb)
+    }
+}).single('profilePic');
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -156,6 +173,62 @@ app.post("/", urlencodedParser, function (req, res) {
     }
 });
 
+app.get("/reset_pass.rar", (req, res) => {
+    res.render("reset_pass");
+})
+
+app.post("/reset_pass", urlencodedParser, (req, res) => {
+    token = crypto.randomBytes(16).toString(`hex`);
+    con.query('UPDATE `maindata`.`userdata` SET `token` = ? WHERE `email` = ?', [token, req.body.uemail], (err, results, fields) => {
+        if (err) {
+            console.log(red + 'Invalid email address \x1b[0m');
+        }
+        else {
+            var mailOptions = {
+                from: 'official.matcha@gmail.com',
+                to: req.body.uemail,
+                subject: 'NEED SOME HELP THERE? ❤️',
+                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">'+"Forgot your password? Don't worry. Click here for a new one."+"<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/new_pass.json/token="+token+"'>RESET PASSWORD</a>"+"</div>"
+            };
+            transporter.sendMail(mailOptions, function(error, info){
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log(green + ' EMAIL SENT: \x1b[0m' + info.response);
+                }
+            });
+        }
+    })
+})
+
+app.get("/new_pass.json/:token", (req, res) => {
+    res.render("new_pass", {
+        output: req.params.token
+    });
+});
+
+app.post("/new_pass/:token", urlencodedParser, (req, res) => {
+    console.log(req.body);
+    const errors = validateReg(req);
+    var token = req.params.token.slice(6);
+    if (errors.length == 0) {
+        bcrypt.hash(req.body.upsw, 8, (err, hash) => {
+            console.log(token + "  " + hash);
+            if (err){
+                return console.log(red + " UNABLE TO HASH \x1b[0m", err);
+            }
+            con.query('UPDATE `maindata`.`userdata` SET `password` = ? WHERE `token` = ?', [hash, token], (err, results, fields) => {
+                if (err) {
+                    console.log(red + "ERROR ON RESET: \x1b[0m", err);
+                }
+                else{
+                    console.log(green + ' SUCCESFULLY ADDED NEW PASSWORD! \x1b[0m');
+                }
+            });
+        });
+    }
+});
+
 app.get("/register.jpeg", function (req, res) {
     res.render("register");
 });
@@ -194,7 +267,7 @@ app.post("/register", urlencodedParser, function (req, res) {
                                     console.log(green + ' SUCCESFULLY ADDED NEW USER! \x1b[0m');
                                     transporter.sendMail(mailOptions, function (error, info) {
                                         if (error) {
-                                            console.log(error);
+                                            console.log(red + error);
                                         } else {
                                             console.log(green + ' EMAIL SENT: \x1b[0m' + info.response);
                                         }
@@ -217,15 +290,19 @@ app.post("/register", urlencodedParser, function (req, res) {
 
 app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
-    var token = req.params.token;
-    if (token.length > 32)
-    {
-        token = token.slice(6);
-    }
+    console.log(req.body);
+    upload(req, res1, (err) => {
+        if(err){
+            console.log(err.message);
+        }
+        else {
+            console.log(req.file);
+        }
+    });
+    var code = evaluateCode(req.body.gender, req.body.pref);
+    var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
-
-        console.log(token);
-        console.log(res[0]);
+        // console.log(res[0]);
         if (res[0].code) {
             var uname = (req.body.uname) ? req.body.uname : res[0].username;
             var fname = (req.body.fname) ? req.body.fname : res[0].name;
@@ -255,20 +332,13 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
                     });
                 }
             });
-
         }
     })
-
 });
 
 app.get("/profile_setup.mp3/:token", function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");
-    var token = req.params.token;
-    if (token.length > 32)
-    {
-        token = token.slice(6);
-    }
-    console.log(token);
+    var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
     var f;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, r, fields) => {
         if (r[0].code) {
@@ -408,11 +478,16 @@ app.get("/main.txt", function (req, res) {
                 var email = result[0].email;
                 var pref = result[0].pref;
                 var token = result[0].token;
-                con.query('SELECT * FROM `maindata`.`userdata` WHERE `gender` = ?', [pref], (err, resl, fields) => {
+                var code = result[0].code;
+                con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
                     var ppl = [];
-                    if (resl) {
-                        for (i = 0; i < resl.length; i++) {
-                            ppl.push(resl[i].username);
+                    if (resl)
+                    {
+                        for (i = 0; i < resl.length; i++)
+                        {
+                            if (compatibleCheck(code, resl[i].code)){
+                                ppl.push(resl[i].username);
+                            }
                         }
                     }
                     con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
@@ -532,4 +607,22 @@ function evaluateCode(gender, preference) {
         code = code + "11";
     }
     return code;
+};
+
+function compatibleCheck(user1, user2){
+    var u1 = parseInt(user1, 2);
+    var u2 = parseInt(user2, 2);
+    return(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));
+};
+
+function checkFileType(file, cb){
+    const fileTypes = /jpeg|jpg|png|gif/;
+    const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimeType = fileTypes.test(file.mimetype);
+    if (extName && mimeType){
+        return cb(null, true);
+    }
+    else {
+        cb({message: 'Error: Images Only!'});
+    }
 };
