@@ -400,3 +400,14 @@ div label input {
     color: #fff;
     opacity: 1;
 }
+
+::-webkit-scrollbar {
+    width: 1px;
+    opacity: 0;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 1px;
+    opacity: 0;
+
+}

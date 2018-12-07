@@ -13,17 +13,18 @@
     Run XAMPP or MAMP APACHE/MySQL
 */
 
-const express = require('express');      
-const ejs = require('ejs');               
-const bodyParser = require('body-parser');               
-const mysql = require('mysql');                   
-const bcrypt = require('bcrypt');              
-const session = require('express-session');                
-const cookie = require('cookie-parser');                 
-const nodemailer = require('nodemailer');     
-const crypto = require('crypto');           
+const express = require('express');
+const ejs = require('ejs');
+const bodyParser = require('body-parser');
+const mysql = require('mysql');
+const bcrypt = require('bcrypt');
+const session = require('express-session');
+const cookie = require('cookie-parser');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const swal = require('sweetalert');
 const dateTime = require('node-datetime');
+
 
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({
@@ -51,7 +52,7 @@ con.connect(function (err) {
     if (err) {
         console.log(err);
     }
-    console.log(green + " CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
+    console.log(green + " CONNECTED TO MySQL \x1b[33m PORT: 3360 \x1b[0m");
     con.query("CREATE DATABASE maindata", function (err, result) {
         if (err) {
             console.log(red + err + " \x1b[0m");
@@ -97,7 +98,7 @@ con.connect(function (err) {
                 if (err) {
                     console.log(err);
                 }
-                console.log(green + "TABLE CREATED  :   \x1b[33m visitors \x1b[0m");
+                console.log(green + "TABLE CREATED  :   \x1b[33m LIKES \x1b[0m");
             });
 
         });
@@ -116,7 +117,9 @@ var transporter = nodemailer.createTransport({
 });
 
 app.get("/", function (req, res) {
-    res.render("index", {login});
+    res.render("index", {
+        login
+    });
     login = 0;
 });
 
@@ -184,7 +187,6 @@ app.post("/register", urlencodedParser, function (req, res) {
                             console.log(red + 'ERROR ON QUERY #3 \x1b[0m');
                         }
                         if (results.length == 0) {
-                            console.log("++++++++++++++++++++++++++++++++++++++   " + req.body.myFile);
                             con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`, `pp`) VALUES (?,?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token, req.body.myFile], function (err, result, fields) {
                                 if (err) {
                                     console.log(red + 'ERROR ON QUERY #4 \x1b[0m');
@@ -216,6 +218,10 @@ app.post("/register", urlencodedParser, function (req, res) {
 app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
     var token = req.params.token;
+    if (token.length > 32)
+    {
+        token = token.slice(6);
+    }
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
 
         console.log(token);
@@ -229,7 +235,6 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var tags = (req.body.tags) ? req.body.tags : res[0].tags;
             var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
             var code = evaluateCode(req.body.gender, req.body.pref);
-            console.log(code);
 
             con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
                 res1.redirect("/");
@@ -259,6 +264,10 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
 app.get("/profile_setup.mp3/:token", function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");
     var token = req.params.token;
+    if (token.length > 32)
+    {
+        token = token.slice(6);
+    }
     console.log(token);
     var f;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, r, fields) => {
@@ -286,10 +295,7 @@ app.get("/user/:username", function (req, res) {
             var lonline = result[0].lonline;
             fame = fame + 1;
 
-            con.query('INSERT INTO `maindata`.`visitors` (`username`, `viewer`) VALUES (?,?)', [uname, req.session.uname], function (err, result, fields) {
-                console.log("======================= |       " + req.session.viewer);
-                console.log("======================= |       " + req.session.uname);
-            });
+            con.query('INSERT INTO `maindata`.`visitors` (`username`, `viewer`) VALUES (?,?)', [uname, req.session.uname], function (err, result, fields) {});
             con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `email` = ?', [fame, email], (err, result, fields) => {
                 console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
             });
@@ -305,7 +311,6 @@ app.get("/user/:username", function (req, res) {
                         console.log(re.length);
                     }
                 } else {
-                    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
                 }
                 console.log(green + lonline);
@@ -313,33 +318,33 @@ app.get("/user/:username", function (req, res) {
                 var f2 = "";
                 var chat = 0;
                 con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.uname], (err, reslt, fields) => {
-                    console.log("................. " + reslt.length);
+
                     if (reslt) {
                         for (i = 0; i < reslt.length; i++) {
                             if (reslt[i].liked = req.session.viewer); {
                                 f1 = "yes";
-                                console.log("===========  : " + f1);
+
                             }
                         }
-                        console.log("xxxxxxxxxxxxxxxx=> " + f1);
+
                     }
                     con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.viewer], (err, reslt2, fields) => {
-                        console.log("................  " + reslt2.length);
+
                         if (reslt2) {
                             for (i = 0; i < reslt2.length; i++) {
                                 if (reslt2[i].liked = req.session.uname); {
                                     f2 = "yes";
-                                    console.log("===========  : " + f2);
+
                                 }
                             }
                         }
-                        console.log("__________________ => " + f1 + "  " + f2);
+
                         if ((f1 == "yes") && (f2 == "yes")) {
                             chat = 1;
                         } else {
                             chat = 0;
                         }
-                        console.log("----------------   =   " + chat);
+
                         res.render("user", {
                             name,
                             uname,
