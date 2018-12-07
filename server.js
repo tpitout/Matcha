@@ -89,7 +89,7 @@ con.connect(function (err) {
                 return;
             }
             console.log(green + " CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `gender` VARCHAR(10), `pref` VARCHAR(10), `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT, `lonline` DATETIME)";
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT, `lonline` DATETIME, `long` FLOAT, `lat` FLOAT)";
             con.query(sql, function (err, result) {
                 if (err) {
                     console.log(err);
@@ -260,7 +260,7 @@ app.post("/register", urlencodedParser, function (req, res) {
                             console.log(red + 'ERROR ON QUERY #3 \x1b[0m');
                         }
                         if (results.length == 0) {
-                            con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`, `pp`) VALUES (?,?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token, req.body.myFile], function (err, result, fields) {
+                            con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`, `pp`, `long`, `lat`) VALUES (?,?,?,?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token, req.body.myFile, req.body.longitude, req.body.latitude], function (err, result, fields) {
                                 if (err) {
                                     console.log(red + 'ERROR ON QUERY #4 \x1b[0m');
                                 } else {
