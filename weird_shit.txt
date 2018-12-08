@@ -32,3 +32,22 @@ console.log(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & (((
 
         hsud fuahfas hqf893h sjf 
         what the 
+
+
+
+
+
+
+        if (!(req.body.longitude) && !(req.body.latitude))
+                            {
+                                ipInfo((err, cLoc) => {
+                                    console.log("===========================================   " + cLoc.loc);
+                                    long = cLoc.loc.split(',')[0];
+                                    lat = cLoc.loc.split(',')[1];
+
+                                })
+                            }
+                            long = req.body.longitude;
+                            lat = req.body.latitude;
+                            console.log(long);
+                            console.log(lat);

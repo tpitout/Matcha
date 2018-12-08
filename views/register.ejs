@@ -26,19 +26,16 @@
         <h2>ENTER PASSWORD AGAIN</h2>
         <input type="password" name="upsw2" id="2" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$" placeholder="ENTER YOUR PASSWORD"
             required>
-        <input type="hidden" name="latitude" id="lat">
-        <input type="hidden" name="longitude" id="long">
+        <input type="hidden" name="coord" id="coord">
         <input type="SUBMIT" onclick="clickAlert()" value="submit">
     </form>
 </div>
 
 <script>
     navigator.geolocation.getCurrentPosition(function (position) {
-            console.log(position.coords.latitude);
-            console.log(position.coords.longitude);
-            document.getElementById("lat").value = position.coords.latitude;
-            document.getElementById("long").value = position.coords.longitude;
+            document.getElementById("coord").value = position.coords.latitude+", "+position.coords.longitude;
         });
+
     function clickAlert() {
         var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
 
