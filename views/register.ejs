@@ -33,8 +33,9 @@
 
 <script>
     navigator.geolocation.getCurrentPosition(function (position) {
-            document.getElementById("coord").value = position.coords.latitude+", "+position.coords.longitude;
-        });
+        document.getElementById("coord").value = position.coords.latitude + ", " + position.coords.longitude;
+    });
+
 
     function clickAlert() {
         var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");

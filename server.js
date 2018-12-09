@@ -52,15 +52,17 @@ app.use(session({
 
 const storage = multer.diskStorage({
     destination: './public/uploads/',
-    filename: function(req, file, cb){
+    filename: function (req, file, cb) {
         cb(null, file.fieldnam + '.' + Date.now() + path.extname(file.originalname));
     }
 });
 
 const upload = multer({
     storage: storage,
-    limits:{fileSize: 1000000},
-    fileFilter: function(req, file, cb){
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter: function (req, file, cb) {
         checkFileType(file, cb)
     }
 }).single('profilePic');
@@ -188,15 +190,14 @@ app.post("/reset_pass", urlencodedParser, (req, res) => {
     con.query('UPDATE `maindata`.`userdata` SET `token` = ? WHERE `email` = ?', [token, req.body.uemail], (err, results, fields) => {
         if (err) {
             console.log(red + 'Invalid email address \x1b[0m');
-        }
-        else {
+        } else {
             var mailOptions = {
                 from: 'official.matcha@gmail.com',
                 to: req.body.uemail,
                 subject: 'NEED SOME HELP THERE? ❤️',
-                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">'+"Forgot your password? Don't worry. Click here for a new one."+"<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/new_pass.json/token="+token+"'>RESET PASSWORD</a>"+"</div>"
+                html: '<div style="border: 5px SOLID #FF5864"><h1 style="color:#FF5864;text-align:center;">WELCOME TO MATCHA</h1> <h2 style="font-size:30px;color:#FF5864;text-align:center;">' + "Forgot your password? Don't worry. Click here for a new one." + "<br><a style='font-size:20px;text-align:center;color:white;text-decoration:none;background-color:#FF5864;padding: 5px 5px;' href='http://localhost:8080/new_pass.json/token=" + token + "'>RESET PASSWORD</a>" + "</div>"
             };
-            transporter.sendMail(mailOptions, function(error, info){
+            transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                     console.log(error);
                 } else {
@@ -220,14 +221,13 @@ app.post("/new_pass/:token", urlencodedParser, (req, res) => {
     if (errors.length == 0) {
         bcrypt.hash(req.body.upsw, 8, (err, hash) => {
             console.log(token + "  " + hash);
-            if (err){
+            if (err) {
                 return console.log(red + " UNABLE TO HASH \x1b[0m", err);
             }
             con.query('UPDATE `maindata`.`userdata` SET `password` = ? WHERE `token` = ?', [hash, token], (err, results, fields) => {
                 if (err) {
                     console.log(red + "ERROR ON RESET: \x1b[0m", err);
-                }
-                else{
+                } else {
                     console.log(green + ' SUCCESFULLY ADDED NEW PASSWORD! \x1b[0m');
                 }
             });
@@ -266,12 +266,16 @@ app.post("/register", urlencodedParser, function (req, res) {
                             console.log(red + 'ERROR ON QUERY #3 \x1b[0m');
                         }
                         if (results.length == 0) {
-                            var pos = getPos(req.body.coords);
-                            console.log(pos);
+                            var pos = req.body.coord;
                             con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`, `pp`, `coord`) VALUES (?,?,?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token, req.body.myFile, pos], function (err, result, fields) {
                                 if (err) {
                                     console.log(red + 'ERROR ON QUERY #4 \x1b[0m');
                                 } else {
+                                    if (!pos) {
+                                        ipInfo((err, cLoc) => {
+                                            con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {});
+                                        });
+                                    }
                                     console.log(green + ' SUCCESFULLY ADDED NEW USER! \x1b[0m');
                                     transporter.sendMail(mailOptions, function (error, info) {
                                         if (error) {
@@ -300,10 +304,9 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
     console.log(req.body);
     upload(req, res1, (err) => {
-        if(err){
+        if (err) {
             console.log(err.message);
-        }
-        else {
+        } else {
             console.log(req.file);
         }
     });
@@ -489,11 +492,9 @@ app.get("/main.txt", function (req, res) {
                 var code = result[0].code;
                 con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
                     var ppl = [];
-                    if (resl)
-                    {
-                        for (i = 0; i < resl.length; i++)
-                        {
-                            if (compatibleCheck(code, resl[i].code)){
+                    if (resl) {
+                        for (i = 0; i < resl.length; i++) {
+                            if (compatibleCheck(code, resl[i].code)) {
                                 ppl.push(resl[i].username);
                             }
                         }
@@ -617,33 +618,21 @@ function evaluateCode(gender, preference) {
     return code;
 };
 
-function compatibleCheck(user1, user2){
+function compatibleCheck(user1, user2) {
     var u1 = parseInt(user1, 2);
     var u2 = parseInt(user2, 2);
-    return(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));
+    return (((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));
 };
 
-function checkFileType(file, cb){
+function checkFileType(file, cb) {
     const fileTypes = /jpeg|jpg|png|gif/;
     const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
     const mimeType = fileTypes.test(file.mimetype);
-    if (extName && mimeType){
+    if (extName && mimeType) {
         return cb(null, true);
-    }
-    else {
-        cb({message: 'Error: Images Only!'});
-    }
-};
-
-function getPos(coords) {
-    if (coords)
-    {
-        return (coords)
     } else {
-        var coord = "";
-        ipInfo((err, cLoc) => {
-            coord = cLoc.loc;
-            return (coords)
-        })
+        cb({
+            message: 'Error: Images Only!'
+        });
     }
 };
