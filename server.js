@@ -14,7 +14,6 @@
     npm install multer              --save
     npm install ipinfo              --save
 
-
     Run XAMPP or MAMP APACHE/MySQL
 */
 
@@ -90,7 +89,6 @@ con.connect(function (err) {
             password: "123",
             database: "maindata"
         });
-
         con.connect(function (err) {
             if (err) {
                 console.log(red + " DATABASE ALREADY EXIST'S \x1b[0m");
@@ -104,21 +102,21 @@ con.connect(function (err) {
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m USERDATA \x1b[0m");
             });
-            var sql = "CREATE TABLE chat (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `viewer` VARCHAR(255), `message` VARCHAR(255))";
+            var sql = "CREATE TABLE chat (`id` INT AUTO_INCREMENT PRIMARY KEY, `correspondence` VARCHAR(255), `user_id` VARCHAR(255), `message` VARCHAR(255))";
             con.query(sql, function (err, result) {
                 if (err) {
                     console.log(err);
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m CHAT \x1b[0m");
             });
-            var sql = "CREATE TABLE visitors (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `viewer` VARCHAR(255))";
+            var sql = "CREATE TABLE visitors (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` VARCHAR(255), `viewer_id` VARCHAR(255))";
             con.query(sql, function (err, result) {
                 if (err) {
                     console.log(err);
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m visitors \x1b[0m");
             });
-            var sql = "CREATE TABLE likes (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `liked` VARCHAR(255))";
+            var sql = "CREATE TABLE likes (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` VARCHAR(255), `liked` VARCHAR(255))";
             con.query(sql, function (err, result) {
                 if (err) {
                     console.log(err);
@@ -310,7 +308,6 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             console.log(req.file);
         }
     });
-    var code = evaluateCode(req.body.gender, req.body.pref);
     var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
         // console.log(res[0]);
@@ -337,6 +334,7 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
                     con.query('SELECT * FROM `maindata`.`userdata`WHERE `token` = ?', [token], (err, result, fields) => {
                         if (result.length == 1) {
                             req.session.uname = result[0].username;
+                            req.session.uid = result[0].id;
                         }
                         con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
                         res1.redirect("/main.txt");
@@ -349,7 +347,9 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
 
 app.get("/profile_setup.mp3/:token", function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP  ======= \x1b[0m");
+    console.log(req.params.token);
     var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
+    console.log("token is : " + token);
     var f;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, r, fields) => {
         if (r[0].code) {
@@ -374,31 +374,31 @@ app.get("/user/:username", function (req, res) {
             var fame = result[0].fame;
             var online = result[0].online;
             var lonline = result[0].lonline;
+            var id = result[0].id;
             fame = fame + 1;
 
-            con.query('INSERT INTO `maindata`.`visitors` (`username`, `viewer`) VALUES (?,?)', [uname, req.session.uname], function (err, result, fields) {});
+            con.query('INSERT INTO `maindata`.`visitors` (`username`, `viewer`) VALUES (?,?)', [id, req.session.uid], function (err, result, fields) {});
             con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `email` = ?', [fame, email], (err, result, fields) => {
                 console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
             });
-            req.session.viewer = uname;
-            var names = [req.session.uname, req.session.viewer];
+            req.session.viewer = id;
+            var names = [req.session.uid, req.session.viewer];
             names.sort();
 
-            con.query('SELECT * FROM `maindata`.`chat` WHERE `username` = ? ', [names[0] + names[1]], (err, re, fields) => {
+            con.query('SELECT * FROM `maindata`.`chat` WHERE `correspondence` = ? ', [names[0] + "-" + names[1]], (err, re, fields) => {
                 var chatlog = [];
                 if (re) {
                     for (i = 0; i < re.length; i++) {
+                        chatlog.push(re[i].id);
                         chatlog.push(re[i].message);
                         console.log(re.length);
                     }
-                } else {
-
                 }
                 console.log(green + lonline);
                 var f1 = "";
                 var f2 = "";
                 var chat = 0;
-                con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.uname], (err, reslt, fields) => {
+                con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, reslt, fields) => {
 
                     if (reslt) {
                         for (i = 0; i < reslt.length; i++) {
@@ -409,11 +409,11 @@ app.get("/user/:username", function (req, res) {
                         }
 
                     }
-                    con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.viewer], (err, reslt2, fields) => {
+                    con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.viewer], (err, reslt2, fields) => {
 
                         if (reslt2) {
                             for (i = 0; i < reslt2.length; i++) {
-                                if (reslt2[i].liked = req.session.uname); {
+                                if (reslt2[i].liked = req.session.uid); {
                                     f2 = "yes";
 
                                 }
@@ -446,20 +446,20 @@ app.get("/user/:username", function (req, res) {
 app.post("/chat", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  CHAT  ======= \x1b[0m");
     var chat = req.body.chat_1;
-    chat = req.session.uname + ": " + req.body.chat_1;
-    var names = [req.session.uname, req.session.viewer];
+    chat = req.session.uid + ": " + req.body.chat_1;
+    var names = [req.session.uid, req.session.viewer];
     names.sort();
-    con.query('INSERT INTO `maindata`.`chat` (`username`, `message`) VALUES (?,?)', [names[0] + names[1], chat], function (err, result, fields) {});
+    con.query('INSERT INTO `maindata`.`chat` (`username`, `id`, `message`) VALUES (?,?,?)', [names[0] + "-" + names[1], req.session.uid, chat], function (err, result, fields) {});
     res.redirect("/user/usr=" + req.session.viewer);
 });
 
 app.post("/like", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  LIKE  ======= \x1b[0m");
-    con.query('SELECT * FROM `maindata`.`likes` where `username` = ? AND `liked` = ?', [req.session.uname, req.session.viewer], function (err, res, fields) {
+    con.query('SELECT * FROM `maindata`.`likes` where `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, res, fields) {
         if (res == 0) {
-            con.query('INSERT INTO `maindata`.`likes` (`username`, `liked`) VALUES (?,?)', [req.session.uname, req.session.viewer], function (err, result, fields) {});
+            con.query('INSERT INTO `maindata`.`likes` (`user_id`, `liked`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {});
         } else {
-            con.query('DELETE FROM `maindata`.`likes` WHERE `username` = ? AND `liked` = ?', [req.session.uname, req.session.viewer], function (err, result, fields) {});
+            con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {});
         }
     });
 
@@ -469,9 +469,9 @@ app.post("/like", urlencodedParser, function (req, res) {
 app.post("/report", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  REPORT  ======= \x1b[0m");
     var report = 1;
-    con.query('SELECT * FROM `maindata`.`userdata` where `username` = ? ', [req.session.viewer], function (err, res, fields) {
+    con.query('SELECT * FROM `maindata`.`userdata` where `id` = ? ', [req.session.viewer], function (err, res, fields) {
         report = report + (res[0].reports);
-        con.query('UPDATE `maindata`.`userdata` SET `reports` = ? WHERE `username` = ?', [report, req.session.viewer], function (err, result, fields) {});
+        con.query('UPDATE `maindata`.`userdata` SET `reports` = ? WHERE `id` = ?', [report, req.session.viewer], function (err, result, fields) {});
     });
 
     res.redirect("/user/usr=" + req.session.viewer);
@@ -490,6 +490,7 @@ app.get("/main.txt", function (req, res) {
                 var pref = result[0].pref;
                 var token = result[0].token;
                 var code = result[0].code;
+                var uid = result[0].id;
                 con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
                     var ppl = [];
                     if (resl) {
@@ -503,35 +504,33 @@ app.get("/main.txt", function (req, res) {
                         var log = [];
                         if (respo.length > 0) {
                             for (i = 0; i < respo.length; i++) {
-                                if (respo[i].username.includes(uname)) {
-                                    if (!(respo[i].message.includes(uname))) {
+                                if (respo[i].correspondance.includes(uid)) {
+                                    if (!(respo[i].message.includes(uid))) {
                                         log.push(respo[i].message);
                                     }
                                 }
                             }
                         }
                         log.reverse();
-                        con.query('SELECT * FROM `maindata`.`visitors` WHERE `username` = ?', [uname], (err, respon, fields) => {
+                        con.query('SELECT * FROM `maindata`.`visitors` WHERE `user_id` = ?', [uid], (err, respon, fields) => {
                             var visits = [];
-
                             if (respon) {
                                 for (i = 0; i < respon.length; i++) {
-                                    visits.push(respon[i].viewer);
-
+                                    visits.push(respon[i].viewer_id);
                                 }
                             }
                             var u1 = [];
                             var u2 = [];
                             var uliked = [];
 
-                            con.query('SELECT * FROM `maindata`.`likes` WHERE `username` = ?', [req.session.uname], (err, resul, fields) => {
+                            con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
 
                                 for (i = 0; i < resul.length; i++) {
                                     u1.push(resul[i].liked);
                                 }
-                                con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uname], (err, reslt, fields) => {
+                                con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
                                     for (i = 0; i < reslt.length; i++) {
-                                        u2.push(reslt[i].username);
+                                        u2.push(reslt[i].user_id);
                                     }
                                     for (i = 0; i < u1.length; i++) {
                                         if (u2.includes(u1[i])) {
@@ -539,11 +538,11 @@ app.get("/main.txt", function (req, res) {
                                         }
                                     }
                                     var visithis = [];
-                                    console.log("------------------------------------  " + req.session.uname);
-                                    con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer` = ?', [req.session.uname], (err, j, fields) => {
+                                    console.log("------------------------------------  " + req.session.uid);
+                                    con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer` = ?', [req.session.uid], (err, j, fields) => {
                                         console.log(j);
                                         for (i = 0; i < j.length; i++) {
-                                            visithis.push(j[i].username);
+                                            visithis.push(j[i].user_id);
                                             console.log(visithis[i]);
                                         }
                                         visithis.reverse();
@@ -561,11 +560,8 @@ app.get("/main.txt", function (req, res) {
                                             token
                                         });
                                     });
-
                                 });
-
                             });
-
                         });
                     });
                 });
@@ -578,10 +574,10 @@ app.get("/main.txt", function (req, res) {
 
 app.get("/logout", function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  LOGOUT  ======= \x1b[0m");
-    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["offline", req.session.uname], function (err, result, fields) {});
+    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `id` = ?", ["offline", req.session.uid], function (err, result, fields) {});
     var dt = dateTime.create();
     var formatted = dt.format('Y-m-d H:M:S');
-    con.query("UPDATE `maindata`.`userdata` SET `lonline` = ? WHERE `username` = ?", [formatted, req.session.uname], function (err, result, fields) {});
+    con.query("UPDATE `maindata`.`userdata` SET `lonline` = ? WHERE `id` = ?", [formatted, req.session.uid], function (err, result, fields) {});
     console.log("LOGOUT");
     res.redirect("/");
 });
