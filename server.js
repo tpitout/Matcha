@@ -146,11 +146,12 @@ app.get("/", function (req, res) {
 });
 
 app.post("/", urlencodedParser, function (req, res) {
-    var success = "/";
+    // var success = "/";
     console.log(req.body);
     if (req.body.uname && req.body.upsw) {
         con.query('SELECT * FROM `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function (err, result, fields) {
             if (result.length == 1) {
+                var verified = result[0].verified;
                 con.query('SELECT `password` from `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function (err, result, fields) {
                     if (err) {
                         console.log(red + 'Error while performing Query1.')
@@ -159,10 +160,14 @@ app.post("/", urlencodedParser, function (req, res) {
                         if (result) {
                             bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
                                 if (response == true) {
-                                    console.log(green + " Successfully Logged in! \x1b[0m ");
-                                    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
-                                    req.session.uname = req.body.uname;
-                                    res.redirect("/main.txt");
+                                    if (verified){
+                                        console.log(green + " Successfully Logged in! \x1b[0m ");
+                                        con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
+                                        req.session.uname = req.body.uname;
+                                        res.redirect("/main.txt");
+                                    } else {
+                                        console.log(red + "Account not verified! \x1b[0m");
+                                    }
                                 } else {
                                     console.log(red + "Unuccessfully Logged in! \x1b[0m ");
                                 }
@@ -319,7 +324,10 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var tags = (req.body.tags) ? req.body.tags : res[0].tags;
             var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
             var code = evaluateCode(req.body.gender, req.body.pref);
-            con.query('UPDATE `maindata`.`userdata` SET  `verified` = "1", code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
+            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `verified` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, 1, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
+                if (err){
+                    console.log("ERROR: ", err);
+                }
                 res1.redirect("/");
             });
         } else {
@@ -383,7 +391,7 @@ app.get("/user/:user_id", function (req, res) {
                 var chatlog = [];
                 if (re) {
                     for (i = 0; i < re.length; i++) {
-                        chatlog.push(re[i].id);
+                        chatlog.push(re[i].user_id + ":");
                         chatlog.push(re[i].message);
                         console.log(re.length);
                     }
@@ -436,7 +444,6 @@ app.get("/user/:user_id", function (req, res) {
 app.post("/chat", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  CHAT  ======= \x1b[0m");
     var chat = req.body.chat_1;
-    chat = req.body.chat_1;
     var names = [req.session.uid, req.session.viewer];
     names.sort();
     con.query('INSERT INTO `maindata`.`chat` (`correspondence`, `user_id`, `message`) VALUES (?,?,?)', [names[0] + "-" + names[1], req.session.uid, chat], function (err, result, fields) {});
