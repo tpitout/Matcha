@@ -31,6 +31,7 @@ const multer = require("multer");
 const dateTime = require('node-datetime');
 const path = require('path');
 const ipInfo = require('ipinfo');
+const fs = require('fs');
 
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({
@@ -41,29 +42,29 @@ var red = "❌ \x1b[1m \x1b[31m";
 var green = "✅ \x1b[1m \x1b[32m";
 var login = 0;
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('./public'));
 app.set('view engine', 'ejs');
 
 app.use(session({
     secret: 'TREDX'
 }));
 
-const storage = multer.diskStorage({
-    destination: './public/uploads/',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '.' + Date.now() + path.extname(file.originalname));
-    }
-});
+// const storage = multer.diskStorage({
+//     destination: './public/uploads/',
+//     filename: function (req, file, cb) {
+//         cb(null, /*file.fieldname + '.' + Date.now() + path.extname(file.originalname)*/ "hello");
+//     }
+// });
 
-const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 1000000
-    },
-    fileFilter: function (req, file, cb) {
-        checkFileType(file, cb)
-    }
-}).single('profilePic');
+// const upload = multer({
+//     dest: './public/uploads/',
+//     limits: {
+//         fileSize: 1000000
+//     },
+//     fileFilter: function (req, file, cb) {
+//         checkFileType(file, cb)
+//     }
+// });
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -305,13 +306,6 @@ app.post("/register", urlencodedParser, function (req, res) {
 app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
     console.log("\x1b[1m \x1b[46m =======  PROFILE SETUP POST  ======= \x1b[0m");
     console.log(req.body);
-    upload(req, res1, (err) => {
-        if (err) {
-            console.log(err.message);
-        } else {
-            console.log("Upload:" + req.file);
-        }
-    });
     var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
         // console.log(res[0]);
