@@ -1,7 +1,6 @@
 <% include includes %>
 <% include footer %>
 
-
 <% if (f) { %>
 <ul>
     <li><a class="active" href="/main.txt">Home</a></li>
@@ -9,7 +8,6 @@
 <% } %>
 <div class="title_1">
     <form id="usrform" method="POST" action="/profile_setup/<%= output %>">
-
         <% if (f) { %>
         <h2>USERNAME</h2>
         <input type="text" name="uname" placholder="Enter Username">
@@ -60,5 +58,4 @@
         <input type="submit" value="submit">
     </form>
 </div>
-
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>

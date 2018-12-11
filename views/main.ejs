@@ -89,11 +89,11 @@
       </form>
     </div>
 
-    <% for(i = 0; i < ppl.length; i++) { %>
+    <% for(i = 0; i < ppl.length; i += 2) { %>
     <div class="profile">
       <a id="<%= ppl[i] %>" href="http://localhost:8888/user/usr=<%=  ppl[i]  %>">
         <h5>
-          <%=  ppl[i]  %>
+          <%=  ppl[i + 1]  %>
         </h5>
       </a>
     </div>
