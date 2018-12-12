@@ -49,23 +49,6 @@ app.use(session({
     secret: 'TREDX'
 }));
 
-// const storage = multer.diskStorage({
-//     destination: './public/uploads/',
-//     filename: function (req, file, cb) {
-//         cb(null, /*file.fieldname + '.' + Date.now() + path.extname(file.originalname)*/ "hello");
-//     }
-// });
-
-// const upload = multer({
-//     dest: './public/uploads/',
-//     limits: {
-//         fileSize: 1000000
-//     },
-//     fileFilter: function (req, file, cb) {
-//         checkFileType(file, cb)
-//     }
-// });
-
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -95,7 +78,7 @@ con.connect(function (err) {
                 return;
             }
             console.log(green + " CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT, `pp` LONGTEXT, `lonline` DATETIME, `coord` VARCHAR(255))";
+            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT,`age` INT(5), `pp` LONGTEXT, `lonline` DATETIME, `coord` VARCHAR(255))";
             con.query(sql, function (err, result) {
                 if (err) {
                     console.log(err);
@@ -315,10 +298,12 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var sname = (req.body.sname) ? req.body.sname : res[0].surname;
             var email = (req.body.email) ? req.body.email : res[0].email;
             var bio = (req.body.bio) ? req.body.bio : res[0].bio;
+            var age = (req.body.age) ? req.body.age : res[0].age;
             var tags = (req.body.tags) ? req.body.tags : res[0].tags;
+            var pos = (req.body.gps) ? req.body.gps : res[0].pos;
             var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
             var code = evaluateCode(req.body.gender, req.body.pref);
-            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
+            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ?, `pos` = ?, `age` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, pos, age, token], (err, result, fields) => {
                 if (err){
                     console.log("ERROR: ", err);
                 }
@@ -326,7 +311,7 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             });
         } else {
             var code = evaluateCode(req.body.gender, req.body.pref);
-            con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `verified` = ?, `bio` = ?, `tags` = ? WHERE `token` = ?', [code, 1, req.body.bio, req.body.tags, token], (err, result, fields) => {
+            con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `verified` = ?, `bio` = ?, `tags` = ?, `age` = ? WHERE `token` = ?', [code, 1, req.body.bio, req.body.tags, req.body.age, token], (err, result, fields) => {
                 if (err) {
                     console.log(red + 'ERROR ON QUERY #5 \x1b[0m', err);
                 } else {

@@ -51,3 +51,26 @@ console.log(((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & (((
                             lat = req.body.latitude;
                             console.log(long);
                             console.log(lat);
+
+
+
+
+
+
+
+                            // const storage = multer.diskStorage({
+//     destination: './public/uploads/',
+//     filename: function (req, file, cb) {
+//         cb(null, /*file.fieldname + '.' + Date.now() + path.extname(file.originalname)*/ "hello");
+//     }
+// });
+
+// const upload = multer({
+//     dest: './public/uploads/',
+//     limits: {
+//         fileSize: 1000000
+//     },
+//     fileFilter: function (req, file, cb) {
+//         checkFileType(file, cb)
+//     }
+// });
