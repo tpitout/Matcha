@@ -318,7 +318,7 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var tags = (req.body.tags) ? req.body.tags : res[0].tags;
             var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
             var code = evaluateCode(req.body.gender, req.body.pref);
-            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `verified` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, 1, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
+            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, token], (err, result, fields) => {
                 if (err){
                     console.log("ERROR: ", err);
                 }
@@ -326,7 +326,7 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             });
         } else {
             var code = evaluateCode(req.body.gender, req.body.pref);
-            con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `bio` = ?, `tags` = ? WHERE `token` = ?', [code, req.body.bio, req.body.tags, token], (err, result, fields) => {
+            con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `verified` = ?, `bio` = ?, `tags` = ? WHERE `token` = ?', [code, 1, req.body.bio, req.body.tags, token], (err, result, fields) => {
                 if (err) {
                     console.log(red + 'ERROR ON QUERY #5 \x1b[0m', err);
                 } else {
@@ -397,18 +397,16 @@ app.get("/user/:user_id", function (req, res) {
                 con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, reslt, fields) => {
                     if (reslt) {
                         for (i = 0; i < reslt.length; i++) {
-                            if (reslt[i].liked = req.session.viewer); {
+                            if (reslt[i].liked == req.session.viewer) {
                                 f1 = "yes";
-
                             }
                         }
                     }
                     con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.viewer], (err, reslt2, fields) => {
                         if (reslt2) {
                             for (i = 0; i < reslt2.length; i++) {
-                                if (reslt2[i].liked = req.session.uid); {
+                                if (reslt2[i].liked == req.session.uid) {
                                     f2 = "yes";
-
                                 }
                             }
                         }
@@ -589,7 +587,6 @@ function validateReg(req) {
 
 function evaluateCode(gender, preference) {
     var code;
-
     if (gender == "male") {
         code = "01";
     } else {
