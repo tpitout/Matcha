@@ -40,7 +40,7 @@ const urlencodedParser = bodyParser.urlencoded({
 
 var red = "❌ \x1b[1m \x1b[31m";
 var green = "✅ \x1b[1m \x1b[32m";
-var login = 0;
+var corrLog = 0;
 
 app.use(express.static('./public'));
 app.set('view engine', 'ejs');
@@ -141,13 +141,12 @@ var transporter = nodemailer.createTransport({
 
 app.get("/", function (req, res) {
     res.render("index", {
-        login
+        corrLog
     });
-    login = 0;
+    corrlog = 0;
 });
 
 app.post("/", urlencodedParser, function (req, res) {
-    // var success = "/";
     console.log(req.body);
     if (req.body.uname && req.body.upsw) {
         con.query('SELECT * FROM `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function (err, result, fields) {
@@ -162,6 +161,7 @@ app.post("/", urlencodedParser, function (req, res) {
                             bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
                                 if (response == true) {
                                     if (verified){
+                                        corrLog = 2;
                                         console.log(green + " Successfully Logged in! \x1b[0m ");
                                         con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
                                         req.session.uname = req.body.uname;
@@ -177,7 +177,7 @@ app.post("/", urlencodedParser, function (req, res) {
                     }
                 });
             } else {
-                login = 1;
+                corrLog = 1;
                 res.redirect("/");
             }
         });
@@ -361,6 +361,7 @@ app.get("/profile_setup.mp3/:token", function (req, res) {
 });
 
 app.get("/user/:user_id", function (req, res) {
+  if (corrLog == 2) {
     console.log("\x1b[1m \x1b[46m =======  USER  ======= \x1b[0m");
     var id = req.params.user_id;
     id = id.slice(4);
@@ -370,10 +371,10 @@ app.get("/user/:user_id", function (req, res) {
             var uname = result[0].username;
             var email = result[0].email;
             var bio = result[0].bio;
-            var fame = result[0].fame;
+            var fame = result[0].fame + 1;
             var online = result[0].online;
             var lonline = result[0].lonline;
-            fame = fame + 1;
+            var age = result[0].age;
             con.query('INSERT INTO `maindata`.`visitors` (`user_id`, `viewer_id`) VALUES (?,?)', [id, req.session.uid], function (err, result, fields) {});
             con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `id` = ?', [fame, id], (err, result, fields) => {
                 console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
@@ -383,11 +384,13 @@ app.get("/user/:user_id", function (req, res) {
             names.sort();
             con.query('SELECT * FROM `maindata`.`chat` WHERE `correspondence` = ? ', [names[0] + "-" + names[1]], (err, re, fields) => {
                 var chatlog = [];
+                var sender = [];
                 if (re) {
                     for (i = 0; i < re.length; i++) {
-                        chatlog.push(re[i].user_id + ":");
+                        con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [re[i].user_id], (err, result, fields) => {
+                            sender.push(result[0].username);
+                        });
                         chatlog.push(re[i].message);
-                        console.log(re.length);
                     }
                 }
                 console.log(green + lonline);
@@ -415,22 +418,29 @@ app.get("/user/:user_id", function (req, res) {
                         } else {
                             chat = 0;
                         }
-                        res.render("user", {
-                            id,
-                            name,
-                            uname,
-                            bio,
-                            fame,
-                            chatlog,
-                            online,
-                            lonline,
-                            chat
-                        });
+                        setTimeout(() => {
+                            res.render("user", {
+                              sender,
+                                id,
+                                name,
+                                uname,
+                                bio,
+                                fame,
+                                chatlog,
+                                online,
+                                lonline,
+                                chat,
+                                age
+                            });
+                        }, 500);
                     });
                 });
             });
         }
     });
+  } else {
+    res.redirect("/");
+  }
 });
 
 app.post("/chat", urlencodedParser, function (req, res) {
@@ -467,7 +477,7 @@ app.post("/report", urlencodedParser, function (req, res) {
 
 app.get("/main.txt", function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  MAIN  ======= \x1b[0m");
-    if (req.session.uname) {
+    if (corrLog == 2) {
         var uname = req.session.uname;
         con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [uname], (err, result, fields) => {
             if (result.length == 1) {
@@ -494,13 +504,11 @@ app.get("/main.txt", function (req, res) {
                         var log = [];
                         if (respo.length > 0) {
                             for (i = 0; i < respo.length; i++) {
-                                console.log(respo[i].correspondence);
                                 if (respo[i].correspondence.includes(uid)) {
                                     if (respo[i].user_id != uid) {
                                         log.push(respo[i].user_id);
                                         log.push(respo[i].message);
                                     }
-                                    console.log("messages: ", log);
                                 }
                             }
                         }
@@ -509,7 +517,9 @@ app.get("/main.txt", function (req, res) {
                             var visits = [];
                             if (respon) {
                                 for (i = 0; i < respon.length; i++) {
-                                    visits.push(respon[i].viewer_id);
+                                    con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
+                                        visits.push(result[0].username);
+                                    });
                                 }
                             }
                             var u1 = [];
@@ -518,38 +528,46 @@ app.get("/main.txt", function (req, res) {
                             con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
 
                                 for (i = 0; i < resul.length; i++) {
-                                    u1.push(resul[i].liked);
+                                    con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
+                                        u1.push(result[0].username);
+                                    });
                                 }
                                 con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
                                     for (i = 0; i < reslt.length; i++) {
-                                        u2.push(reslt[i].user_id);
+                                        con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
+                                            u2.push(result[0].username);
+                                        });
                                     }
-                                    for (i = 0; i < u1.length; i++) {
-                                        if (u2.includes(u1[i])) {
-                                            uliked.push(u1[i]);
+                                    setTimeout(() => {
+                                        for (i = 0; i < u1.length; i++) {
+                                            if (u2.includes(u1[i])) {
+                                                uliked.push(u1[i]);
+                                            }
                                         }
-                                    }
+                                    }, 100);
                                     var visithis = [];
                                     con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
-                                        console.log(j);
                                         for (i = 0; i < j.length; i++) {
-                                            visithis.push(j[i].user_id);
-                                            console.log(visithis[i]);
+                                            con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
+                                                visithis.push(result[0].username);
+                                            });
                                         }
                                         visithis.reverse();
-                                        res.render("main", {
-                                            uname,
-                                            fname,
-                                            sname,
-                                            email,
-                                            pref,
-                                            ppl,
-                                            log,
-                                            visits,
-                                            uliked,
-                                            visithis,
-                                            token
-                                        });
+                                        setTimeout(() => {
+                                            res.render("main", {
+                                                uname,
+                                                fname,
+                                                sname,
+                                                email,
+                                                pref,
+                                                ppl,
+                                                log,
+                                                visits,
+                                                uliked,
+                                                visithis,
+                                                token
+                                            });
+                                        }, 100);
                                     });
                                 });
                             });
@@ -559,7 +577,7 @@ app.get("/main.txt", function (req, res) {
             }
         });
     } else {
-        res.render("index");
+        res.redirect("/");
     }
 });
 

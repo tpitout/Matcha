@@ -21,6 +21,10 @@
 <h2>
     <%= fame %>
 </h2>
+<h1>AGE: </h1>
+<h2>
+    <%= age %>
+</h2>
 <h1>STATUS: </h1>
 
 <% if (online == "online") { %>
@@ -56,7 +60,7 @@
     <h1>CHAT</h1>
     <% for (i = 0; i < chatlog.length; i++) { %>
     <h2>
-        <%= chatlog[i] %>
+      <%= sender[i] %>: <%= chatlog[i] %>
     </h2>
     <% } %>
 </div>
