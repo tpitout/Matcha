@@ -498,9 +498,11 @@ app.get("/main.txt", function (req, res) {
                             for (i = 0; i < respo.length; i++) {
                                 console.log(respo[i].correspondence);
                                 if (respo[i].correspondence.includes(uid)) {
-                                    if (!(respo[i].message.includes(uid))) {
+                                    if (respo[i].user_id != uid) {
+                                        log.push(respo[i].user_id);
                                         log.push(respo[i].message);
                                     }
+                                    console.log("messages: ", log);
                                 }
                             }
                         }
