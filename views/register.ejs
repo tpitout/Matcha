@@ -1,6 +1,5 @@
 <% include includes %>
 <% include footer %>
-
 <div>
     <br>
 </div>
@@ -8,7 +7,6 @@
 <div class="title_1">
     <h1>REGISTER</h1>
 </div>
-
 <div class='title_1'>
     <br>
     <form action="/register" method="post" id="form1">
@@ -30,21 +28,16 @@
         <input type="SUBMIT" onclick="clickAlert()" value="submit">
     </form>
 </div>
-
 <script>
     navigator.geolocation.getCurrentPosition(function (position) {
         document.getElementById("coord").value = position.coords.latitude + ", " + position.coords.longitude;
     });
-
-
     function clickAlert() {
         var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
-
         if (document.getElementById("uname").value && document.getElementById("name").value && document.getElementById(
                 "email").value && document.getElementById("surname").value && document.getElementById("1").value &&
             document.getElementById("2").value) {
             console.log((patt.test(document.getElementById("1").value)));
-
             if ((document.getElementById("1").value == document.getElementById("2").value)) {
                 console.log("2");
                 if ((patt.test(document.getElementById("1").value))) {
@@ -58,7 +51,6 @@
         }
     };
 </script>
-
 <div style="text-align: center;">
     <br><a class="abut" href="/">LOGIN</a>
 </div>
