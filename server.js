@@ -300,10 +300,15 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var bio = (req.body.bio) ? req.body.bio : res[0].bio;
             var age = (req.body.age) ? req.body.age : res[0].age;
             var tags = (req.body.tags) ? req.body.tags : res[0].tags;
-            var pos = (req.body.gps) ? req.body.gps : res[0].pos;
+            var pos = (req.body.pos) ? req.body.pos : res[0].pos;
             var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
             var code = evaluateCode(req.body.gender, req.body.pref);
-            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ?, `pos` = ?, `age` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, pos, age, token], (err, result, fields) => {
+            if (pos) {
+                ipInfo ((err, cLoc) => {
+                    con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {});
+                    });
+            };
+            con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ?, `age` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, age, token], (err, result, fields) => {
                 if (err){
                     console.log("ERROR: ", err);
                 }

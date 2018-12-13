@@ -19,22 +19,7 @@
         <input type="email" name="email" placholder="Enter Email">
         <h2>Password</h2>
         <input type="password" name="psw" placholder="Enter Password">
-        <h2>RESET GPS</h2>
-        <form class="title_2" action="/gps" method="POST">
-            <div id="ck-button">
-                <label>
-                    <input type="checkbox" value="1" id="coord" name="gps" onclick="coords()"><span>RESET GPS</span>
-                    <script>
-                            function coords() {
-                            navigator.geolocation.getCurrentPosition(function (position) {
-                                document.getElementById("coord").value = position.coords.latitude + ", " + position.coords.longitude;
-                                console.log(document.getElementById("coords").value);
-                            });
-                        };
-                    </script>
-                </label>
-            </div>
-        </form>
+
         <% } %>
         <h2>CHOOSE A GENDER</h2>
         <label class="container">
@@ -62,6 +47,12 @@
             <input type="radio" name="pref" value="none">Asexual
             <span class="checkmark"></span>
         </label>
+        <H2>UPDATE LOCATION</H2>
+        <div id="ck-button">
+            <label>
+                <input type="checkbox" value="1" name="pos" ><span>UPDATE LOCATION</span>
+            </label>
+        </div>
         <H2>ENTER YOUR AGE</H2>
         <input type="number" min="18" name="age" id="age" required>
         <H2>ENTER YOUR BIO</H2>
@@ -72,8 +63,9 @@
         <H2>UPLOAD IMAGES</H2>
         <input type="file" name="myFile" required><br><br>
         <% } %>
-        <br>
+        <br><br><br>
         <input type="submit" value="submit">
+        <br><br><br>
     </form>
 </div>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
