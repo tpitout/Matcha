@@ -78,38 +78,38 @@ con.connect(function (err) {
                 return;
             }
             console.log(green + " CONNECTED TO MySQL \x1b[33m PORT: 3030 \x1b[0m");
-            var sql = "CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT,`age` INT(5), `pp` LONGTEXT, `lonline` DATETIME, `coord` VARCHAR(255))";
-            con.query(sql, function (err, result) {
+            con.query("CREATE TABLE userdata (`id` INT AUTO_INCREMENT PRIMARY KEY, `username` VARCHAR(255), `name` VARCHAR(255), `surname` VARCHAR(255), `email` VARCHAR(255), `password` VARCHAR(255), `code` VARCHAR(4), `token` VARCHAR(255), `verified` TINYINT(1) DEFAULT '0', `fame` INT(5) DEFAULT '0', `online` VARCHAR(100), `reports` INT(5) DEFAULT '0', `bio` TEXT, `tags` TEXT,`age` INT(5), `pp` LONGTEXT, `lonline` DATETIME, `coord` VARCHAR(255))", function (err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m USERDATA \x1b[0m");
             });
-            var sql = "CREATE TABLE chat (`id` INT AUTO_INCREMENT PRIMARY KEY, `correspondence` VARCHAR(255), `user_id` VARCHAR(255), `message` VARCHAR(255))";
-            con.query(sql, function (err, result) {
+            con.query("CREATE TABLE chat (`id` INT AUTO_INCREMENT PRIMARY KEY, `correspondence` VARCHAR(255), `user_id` VARCHAR(255), `message` VARCHAR(255))", function (err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m CHAT \x1b[0m");
             });
-            var sql = "CREATE TABLE visitors (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` VARCHAR(255), `viewer_id` VARCHAR(255))";
-            con.query(sql, function (err, result) {
+            con.query("CREATE TABLE visitors (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` VARCHAR(255), `viewer_id` VARCHAR(255))", function (err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m visitors \x1b[0m");
             });
-            var sql = "CREATE TABLE likes (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` VARCHAR(255), `liked` VARCHAR(255))";
-            con.query(sql, function (err, result) {
+            con.query("CREATE TABLE likes (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` VARCHAR(255), `liked` VARCHAR(255))", function (err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m LIKES \x1b[0m");
             });
-            var sql = "CREATE TABLE block (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` INT(5), `blockee` INT(5))";   ////////////////////////////////////////////////
-            con.query(sql, function (err, result) {
+            con.query("CREATE TABLE block (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` INT(5), `blockee` INT(5))", function (err, result) {
                 if (err) {
-                    console.log(err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m BLOCK \x1b[0m");
             });
@@ -139,20 +139,29 @@ app.post("/", urlencodedParser, function (req, res) {
     console.log(req.body);
     if (req.body.uname && req.body.upsw) {
         con.query('SELECT * FROM `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function (err, result, fields) {
+            if (err) {
+                console.log(red + err + " \x1b[0m");
+                return;
+            }
             if (result.length == 1) {
                 var verified = result[0].verified;
                 con.query('SELECT `password` from `maindata`.`userdata` WHERE `username`= ?', [req.body.uname], function (err, result, fields) {
                     if (err) {
-                        console.log(red + 'Error while performing Query1.')
+                        console.log(red + err + " \x1b[0m");
+                        return;
                     } else {
-                        console.log(result[0]);
                         if (result) {
                             bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
                                 if (response == true) {
                                     if (verified) {
                                         corrLog = 2;
                                         console.log(green + " Successfully Logged in! \x1b[0m ");
-                                        con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
+                                        con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {
+                                            if (err) {
+                                                console.log(red + err + " \x1b[0m");
+                                                return;
+                                            }
+                                        });
                                         req.session.uname = req.body.uname;
                                         res.redirect("/main.txt");
                                     } else {
@@ -218,7 +227,8 @@ app.post("/new_pass/:token", urlencodedParser, (req, res) => {
             }
             con.query('UPDATE `maindata`.`userdata` SET `password` = ? WHERE `token` = ?', [hash, token], (err, results, fields) => {
                 if (err) {
-                    console.log(red + "ERROR ON RESET: \x1b[0m", err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 } else {
                     console.log(green + ' SUCCESFULLY ADDED NEW PASSWORD! \x1b[0m');
                 }
@@ -249,23 +259,31 @@ app.post("/register", urlencodedParser, function (req, res) {
             };
             con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [req.body.uname], (err, results, fields) => {
                 if (err) {
-                    console.log(red + 'ERROR ON QUERY #2 \x1b[0m');
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 if (results.length == 0) {
                     console.log(req.body.email);
                     con.query('SELECT * FROM `maindata`.`userdata` WHERE `email` = ?', [req.body.uemail], (err, results, fields) => {
                         if (err) {
-                            console.log(red + 'ERROR ON QUERY #3 \x1b[0m');
+                            console.log(red + err + " \x1b[0m");
+                            return;
                         }
                         if (results.length == 0) {
                             var pos = req.body.coord;
                             con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`, `pp`, `coord`) VALUES (?,?,?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token, req.body.myFile, pos], function (err, result, fields) {
                                 if (err) {
-                                    console.log(red + 'ERROR ON QUERY #4 \x1b[0m');
+                                    console.log(red + err + " \x1b[0m");
+                                    return;
                                 } else {
                                     if (!pos) {
                                         ipInfo((err, cLoc) => {
-                                            con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {});
+                                            con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {
+                                                if (err) {
+                                                    console.log(red + err + " \x1b[0m");
+                                                    return;
+                                                }
+                                            });
                                         });
                                     }
                                     console.log(green + ' SUCCESFULLY ADDED NEW USER! \x1b[0m');
@@ -297,7 +315,10 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
     console.log(req.body);
     var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, res, fields) => {
-        // console.log(res[0]);
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
         if (res[0].code) {
             var uname = (req.body.uname) ? req.body.uname : res[0].username;
             var fname = (req.body.fname) ? req.body.fname : res[0].name;
@@ -311,12 +332,17 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var code = evaluateCode(req.body.gender, req.body.pref);
             if (pos) {
                 ipInfo((err, cLoc) => {
-                    con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {});
+                    con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {
+                        if (err) {
+                        console.log(red + err + " \x1b[0m");
+                        return;
+                    }});
                 });
             };
             con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ?, `age` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, age, token], (err, result, fields) => {
                 if (err) {
-                    console.log("ERROR: ", err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 }
                 res1.redirect("/");
             });
@@ -324,15 +350,25 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var code = evaluateCode(req.body.gender, req.body.pref);
             con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `verified` = ?, `bio` = ?, `tags` = ?, `age` = ? WHERE `token` = ?', [code, 1, req.body.bio, req.body.tags, req.body.age, token], (err, result, fields) => {
                 if (err) {
-                    console.log(red + 'ERROR ON QUERY #5 \x1b[0m', err);
+                    console.log(red + err + " \x1b[0m");
+                    return;
                 } else {
                     console.log(green + 'SUCCESFULLY ADDED USER PREFERENCES! \x1b[0m');
                     con.query('SELECT * FROM `maindata`.`userdata`WHERE `token` = ?', [token], (err, result, fields) => {
+                        if (err) {
+                            console.log(red + err + " \x1b[0m");
+                            return;
+                        }
                         if (result.length == 1) {
                             req.session.uname = result[0].username;
                             req.session.uid = result[0].id;
                         }
-                        con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
+                        con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {
+                            if (err) {
+                                console.log(red + err + " \x1b[0m");
+                                return;
+                            }
+                        });
                         res1.redirect("/main.txt");
                     });
                 }
@@ -346,6 +382,10 @@ app.get("/profile_setup.mp3/:token", function (req, res) {
     var token = req.params.token.length > 32 ? req.params.token.slice(6) : req.params.token;
     var f;
     con.query('SELECT * FROM `maindata`.`userdata` WHERE `token` = ?', [token], (err, r, fields) => {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
         if (r[0].code) {
             f = 1;
         }
@@ -362,6 +402,10 @@ app.get("/user/:user_id", function (req, res) {
         var id = req.params.user_id;
         id = id.slice(4);
         con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [id], (err, result, fields) => {
+            if (err) {
+                console.log(red + err + " \x1b[0m");
+                return;
+            }
             if (result.length == 1) {
                 var name = result[0].name;
                 var uname = result[0].username;
@@ -371,29 +415,51 @@ app.get("/user/:user_id", function (req, res) {
                 var online = result[0].online;
                 var lonline = result[0].lonline;
                 var age = result[0].age;
-                con.query('INSERT INTO `maindata`.`visitors` (`user_id`, `viewer_id`) VALUES (?,?)', [id, req.session.uid], function (err, result, fields) {});
+                var tags = result[0].tags.split(" ");
+                tags = tags.filter(value => value.charAt(0) === "#");
+                con.query('INSERT INTO `maindata`.`visitors` (`user_id`, `viewer_id`) VALUES (?,?)', [id, req.session.uid], function (err, result, fields) {
+                    if (err) {
+                        console.log(red + err + " \x1b[0m");
+                        return;
+                    }
+                });
                 con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `id` = ?', [fame, id], (err, result, fields) => {
+                    if (err) {
+                        console.log(red + err + " \x1b[0m");
+                        return;
+                    }
                     console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
                 });
                 req.session.viewer = id;
                 var names = [req.session.uid, req.session.viewer];
                 names.sort();
                 con.query('SELECT * FROM `maindata`.`chat` WHERE `correspondence` = ? ', [names[0] + "-" + names[1]], (err, re, fields) => {
+                    if (err) {
+                        console.log(red + err + " \x1b[0m");
+                        return;
+                    }
                     var chatlog = [];
                     var sender = [];
                     if (re) {
                         for (i = 0; i < re.length; i++) {
                             con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [re[i].user_id], (err, result, fields) => {
+                                if (err) {
+                                    console.log(red + err + " \x1b[0m");
+                                    return;
+                                }
                                 sender.push(result[0].username);
                             });
                             chatlog.push(re[i].message);
                         }
                     }
-                    console.log(green + lonline);
                     var f1 = "";
                     var f2 = "";
                     var chat = 0;
                     con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, reslt, fields) => {
+                        if (err) {
+                            console.log(red + err + " \x1b[0m");
+                            return;
+                        }
                         if (reslt) {
                             for (i = 0; i < reslt.length; i++) {
                                 if (reslt[i].liked == req.session.viewer) {
@@ -402,6 +468,10 @@ app.get("/user/:user_id", function (req, res) {
                             }
                         }
                         con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.viewer], (err, reslt2, fields) => {
+                            if (err) {
+                                console.log(red + err + " \x1b[0m");
+                                return;
+                            }
                             if (reslt2) {
                                 for (i = 0; i < reslt2.length; i++) {
                                     if (reslt2[i].liked == req.session.uid) {
@@ -416,6 +486,7 @@ app.get("/user/:user_id", function (req, res) {
                             }
                             setTimeout(() => {
                                 res.render("user", {
+                                    tags,
                                     gender,
                                     sender,
                                     id,
@@ -445,17 +516,36 @@ app.post("/chat", urlencodedParser, function (req, res) {
     var chat = req.body.chat_1;
     var names = [req.session.uid, req.session.viewer];
     names.sort();
-    con.query('INSERT INTO `maindata`.`chat` (`correspondence`, `user_id`, `message`) VALUES (?,?,?)', [names[0] + "-" + names[1], req.session.uid, chat], function (err, result, fields) {});
+    con.query('INSERT INTO `maindata`.`chat` (`correspondence`, `user_id`, `message`) VALUES (?,?,?)', [names[0] + "-" + names[1], req.session.uid, chat], function (err, result, fields) {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
+    });
     res.redirect("/user/usr=" + req.session.viewer);
 });
 
 app.post("/like", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  LIKE  ======= \x1b[0m");
     con.query('SELECT * FROM `maindata`.`likes` where `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, res, fields) {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
         if (res == 0) {
-            con.query('INSERT INTO `maindata`.`likes` (`user_id`, `liked`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {});
+            con.query('INSERT INTO `maindata`.`likes` (`user_id`, `liked`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {
+                if (err) {
+                    console.log(red + err + " \x1b[0m");
+                    return;
+                }
+            });
         } else {
-            con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {});
+            con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {
+                if (err) {
+                    console.log(red + err + " \x1b[0m");
+                    return;
+                }
+            });
         }
     });
     res.redirect("/user/usr=" + req.session.viewer);
@@ -463,8 +553,18 @@ app.post("/like", urlencodedParser, function (req, res) {
 
 app.post("/block", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  BLOCK  ======= \x1b[0m");
-    con.query('INSERT INTO `maindata`.`block` (`user_id`, `blockee`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {});
-    con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {});
+    con.query('INSERT INTO `maindata`.`block` (`user_id`, `blockee`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
+    });
+    con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
+    });
     res.redirect("/user/usr=" + req.session.viewer);
 });
 
@@ -472,10 +572,18 @@ app.post("/report", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  REPORT  ======= \x1b[0m");
     var report = 1;
     con.query('SELECT * FROM `maindata`.`userdata` where `id` = ? ', [req.session.viewer], function (err, res, fields) {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
         report = report + (res[0].reports);
-        con.query('UPDATE `maindata`.`userdata` SET `reports` = ? WHERE `id` = ?', [report, req.session.viewer], function (err, result, fields) {});
+        con.query('UPDATE `maindata`.`userdata` SET `reports` = ? WHERE `id` = ?', [report, req.session.viewer], function (err, result, fields) {
+            if (err) {
+                console.log(red + err + " \x1b[0m");
+                return;
+            }
+        });
     });
-
     res.redirect("/user/usr=" + req.session.viewer);
 });
 
@@ -484,6 +592,10 @@ app.get("/main.txt", function (req, res) {
     if (corrLog == 2) {
         var uname = req.session.uname;
         con.query('SELECT * FROM `maindata`.`userdata` WHERE `username` = ?', [uname], (err, result, fields) => {
+            if (err) {
+                console.log(red + err + " \x1b[0m");
+                return;
+            }
             if (result.length == 1) {
                 var uname = result[0].username;
                 var fname = result[0].name;
@@ -498,13 +610,20 @@ app.get("/main.txt", function (req, res) {
                 var tags = result[0].tags;
                 req.session.uid = uid;
                 con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
+                    if (err) {
+                        console.log(red + err + " \x1b[0m");
+                        return;
+                    }
                     con.query('SELECT * FROM `maindata`.`block` WHERE `user_id` = ?', [uid], (err, v, fields) => {
+                        if (err) {
+                            console.log(red + err + " \x1b[0m");
+                            return;
+                        }
                         var blockee = [];
                         for (i = 0; i < v.length; i++) {
                             blockee.push(v[i].blockee);
                         }
                         var ppl = [];
-
                         if (blockee.length > 0) {
                             if (resl) {
                                 for (i = 0; i < resl.length; i++) {
@@ -526,14 +645,15 @@ app.get("/main.txt", function (req, res) {
                                 }
                             }
                         }
-                        console.log(ppl);
                         con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
-                        
+                            if (err) {
+                                console.log(red + err + " \x1b[0m");
+                                return;
+                            }
                             var log = [];
                             if (respo.length > 0) {
                                 for (i = 0; i < respo.length; i++) {
                                     if (respo[i].correspondence.includes(uid)) {
-                                        console.log(respo[i].user_id);
                                         if (respo[i].user_id != uid && !(blockee.includes(parseInt(respo[i].user_id)))) {
                                             log.push(respo[i].user_id);
                                             log.push(respo[i].message);
@@ -543,10 +663,18 @@ app.get("/main.txt", function (req, res) {
                             }
                             log.reverse();
                             con.query('SELECT * FROM `maindata`.`visitors` WHERE `user_id` = ?', [uid], (err, respon, fields) => {
+                                if (err) {
+                                    console.log(red + err + " \x1b[0m");
+                                    return;
+                                }
                                 var visits = [];
                                 if (respon) {
                                     for (i = 0; i < respon.length; i++) {
                                         con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
+                                            if (err) {
+                                                console.log(red + err + " \x1b[0m");
+                                                return;
+                                            }
                                             if (!blockee.includes(result[0].id)) {
                                                 visits.push(result[0].username);
                                                 visits.push(result[0].id);
@@ -558,15 +686,31 @@ app.get("/main.txt", function (req, res) {
                                 var u2 = [];
                                 var uliked = [];
                                 con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
+                                    if (err) {
+                                        console.log(red + err + " \x1b[0m");
+                                        return;
+                                    }
                                     for (i = 0; i < resul.length; i++) {
                                         con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
+                                            if (err) {
+                                                console.log(red + err + " \x1b[0m");
+                                                return;
+                                            }
                                             u1.push(result[0].username);
                                             u1.push(result[0].id);
                                         });
                                     }
                                     con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
+                                        if (err) {
+                                            console.log(red + err + " \x1b[0m");
+                                            return;
+                                        }
                                         for (i = 0; i < reslt.length; i++) {
                                             con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
+                                                if (err) {
+                                                    console.log(red + err + " \x1b[0m");
+                                                    return;
+                                                }
                                                 u2.push(result[0].username);
                                                 u2.push(result[0].id);
                                             });
@@ -580,8 +724,16 @@ app.get("/main.txt", function (req, res) {
                                         }, 100);
                                         var visithis = [];
                                         con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
+                                            if (err) {
+                                                console.log(red + err + " \x1b[0m");
+                                                return;
+                                            }
                                             for (i = 0; i < j.length; i++) {
                                                 con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
+                                                    if (err) {
+                                                        console.log(red + err + " \x1b[0m");
+                                                        return;
+                                                    }
                                                     if (!blockee.includes(result[0].id)) {
                                                         visithis.push(result[0].username);
                                                         visithis.push(result[0].id);
@@ -623,10 +775,19 @@ app.get("/main.txt", function (req, res) {
 
 app.get("/logout", function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  LOGOUT  ======= \x1b[0m");
-    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `id` = ?", ["offline", req.session.uid], function (err, result, fields) {});
+    con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `id` = ?", ["offline", req.session.uid], function (err, result, fields) {
+        if (err) {
+        console.log(red + err + " \x1b[0m");
+        return;
+    }});
     var dt = dateTime.create();
     var formatted = dt.format('Y-m-d H:M:S');
-    con.query("UPDATE `maindata`.`userdata` SET `lonline` = ? WHERE `id` = ?", [formatted, req.session.uid], function (err, result, fields) {});
+    con.query("UPDATE `maindata`.`userdata` SET `lonline` = ? WHERE `id` = ?", [formatted, req.session.uid], function (err, result, fields) {
+        if (err) {
+            console.log(red + err + " \x1b[0m");
+            return;
+        }
+    });
     console.log("LOGOUT");
     res.redirect("/");
 });
@@ -709,13 +870,14 @@ function match_sort(people, coord, age, tags){
     var j = 0;
     for (i = 0; i < people.length; i += 2) {
         con.query("SELECT * FROM `maindata`.`userdata` WHERE `id` = ?", [people[i]], (err, result, fields) => {
-            if (err){
-                console.log(err);
+            if (err) {
+                console.log(red + err + " \x1b[0m");
+                return;
             }
             var coord1 = result[0].coord.split(",");
             var coord2 = coord.split(",");
-            var tags1 = result[0].tags.split(",");
-            var tags2 = tags.split(",");
+            var tags1 = result[0].tags.split(" ");
+            var tags2 = tags.split(" ");
             var commonTags = tags1.filter(value => -1 !== tags2.indexOf(value));
             matchRating[j] = (getDistance(coord1[0], coord1[1], coord2[0], coord2[1]));
             matchRating[j] -= commonTags.length * 10;
@@ -730,7 +892,6 @@ function match_sort(people, coord, age, tags){
             newArray.push(people[2 * sorted[i]]);
             newArray.push(people[(2 * sorted[i]) + 1]);
         }
-        console.log("newArray", newArray);
         return (newArray);
     }, 50);
 };
