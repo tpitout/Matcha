@@ -359,7 +359,7 @@ app.get("/user/:user_id", function (req, res) {
         if (result.length == 1) {
             var name = result[0].name;
             var uname = result[0].username;
-            var email = result[0].email;
+            var gender = (result[0].code >= 1000) ? "Female" : "Male";
             var bio = result[0].bio;
             var fame = result[0].fame + 1;
             var online = result[0].online;
@@ -410,7 +410,8 @@ app.get("/user/:user_id", function (req, res) {
                         }
                         setTimeout(() => {
                             res.render("user", {
-                              sender,
+                                gender,
+                                sender,
                                 id,
                                 name,
                                 uname,
