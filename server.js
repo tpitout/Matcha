@@ -466,6 +466,7 @@ app.post("/like", urlencodedParser, function (req, res) {
 app.post("/block", urlencodedParser, function (req, res) {
     console.log("\x1b[1m \x1b[46m =======  BLOCK  ======= \x1b[0m");
     con.query('INSERT INTO `maindata`.`block` (`user_id`, `blockee`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {});
+    con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {});
     res.redirect("/user/usr=" + req.session.viewer);
 });
 
@@ -504,8 +505,6 @@ app.get("/main.txt", function (req, res) {
                         var ppl = [];
 
                         if (blockee.length > 0) {
-                            console.log("---------------------");
-                            console.log(blockee);
                             if (resl) {
                                 for (i = 0; i < resl.length; i++) {
                                     if (!blockee.includes(resl[i].id)) {
@@ -517,7 +516,6 @@ app.get("/main.txt", function (req, res) {
                                 }
                             }
                         } else {
-                            console.log("+++++++++++++++++++++");
                             if (resl) {
                                 for (i = 0; i < resl.length; i++) {
                                     if (compatibleCheck(code, resl[i].code)) {
@@ -529,11 +527,13 @@ app.get("/main.txt", function (req, res) {
                         }
                         console.log(ppl);
                         con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
+                        
                             var log = [];
                             if (respo.length > 0) {
                                 for (i = 0; i < respo.length; i++) {
                                     if (respo[i].correspondence.includes(uid)) {
-                                        if (respo[i].user_id != uid) {
+                                        console.log(respo[i].user_id);
+                                        if (respo[i].user_id != uid && !(blockee.includes(parseInt(respo[i].user_id)))) {
                                             log.push(respo[i].user_id);
                                             log.push(respo[i].message);
                                         }
@@ -546,8 +546,10 @@ app.get("/main.txt", function (req, res) {
                                 if (respon) {
                                     for (i = 0; i < respon.length; i++) {
                                         con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
-                                            visits.push(result[0].username);
-                                            visits.push(result[0].id);
+                                            if (!blockee.includes(result[0].id)) {
+                                                visits.push(result[0].username);
+                                                visits.push(result[0].id);
+                                            }
                                         });
                                     }
                                 }
@@ -579,8 +581,10 @@ app.get("/main.txt", function (req, res) {
                                         con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
                                             for (i = 0; i < j.length; i++) {
                                                 con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
-                                                    visithis.push(result[0].username);
-                                                    visithis.push(result[0].id);
+                                                    if (!blockee.includes(result[0].id)) {
+                                                        visithis.push(result[0].username);
+                                                        visithis.push(result[0].id);
+                                                    }
                                                 });
                                             }
                                             visithis.reverse();
