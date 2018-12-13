@@ -113,8 +113,6 @@ con.connect(function (err) {
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m BLOCK \x1b[0m");
             });
-
-
         });
     });
 });
@@ -431,7 +429,7 @@ app.get("/user/:user_id", function (req, res) {
                                     chat,
                                     age
                                 });
-                            }, 10);
+                            }, 500);
                         });
                     });
                 });
@@ -495,6 +493,9 @@ app.get("/main.txt", function (req, res) {
                 var token = result[0].token;
                 var code = result[0].code;
                 var uid = result[0].id;
+                var age = result[0].age;
+                var coord = result[0].coord;
+                var tags = result[0].tags;
                 req.session.uid = uid;
                 con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
                     con.query('SELECT * FROM `maindata`.`block` WHERE `user_id` = ?', [uid], (err, v, fields) => {
@@ -589,6 +590,9 @@ app.get("/main.txt", function (req, res) {
                                             }
                                             visithis.reverse();
                                             setTimeout(() => {
+                                                if (match_sort(ppl, coord, age, tags)){
+                                                    ppl = match_sort(ppl, coord, age, tags);
+                                                }
                                                 res.render("main", {
                                                     uname,
                                                     fname,
@@ -602,7 +606,7 @@ app.get("/main.txt", function (req, res) {
                                                     visithis,
                                                     token
                                                 });
-                                            }, 100);
+                                            }, 200);
                                         });
                                     });
                                 });
@@ -664,15 +668,69 @@ function compatibleCheck(user1, user2) {
     return (((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));
 };
 
-function checkFileType(file, cb) {
-    const fileTypes = /jpeg|jpg|png|gif/;
-    const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = fileTypes.test(file.mimetype);
-    if (extName && mimeType) {
-        return cb(null, true);
-    } else {
-        cb({
-            message: 'Error: Images Only!'
+function getDistance(lat1,lon1,lat2,lon2) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(lat2-lat1);
+    var dLon = deg2rad(lon2-lon1); 
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var dist = R * c;
+    return dist;
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI/180)
+}
+
+function sort_order(array) {
+    var length = array.length
+    var sorted = [];
+    for (i = 0; i < length; i++) {
+        sorted.push(i);
+    }
+    for (i = 0; i < length; i++) {
+        for (j = 0; j < (length - i - 1); j++) {
+            if (array[j] > array[j + 1]) {
+                var temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+                temp = sorted[j];
+                sorted[j] = sorted[j + 1];
+                sorted[j + 1] = temp;
+            }
+        }
+    }
+    return (sorted);
+}
+
+function match_sort(people, coord, age, tags){
+    var matchRating = [];
+    var newArray = [];
+    var j = 0;
+    for (i = 0; i < people.length; i += 2) {
+        con.query("SELECT * FROM `maindata`.`userdata` WHERE `id` = ?", [people[i]], (err, result, fields) => {
+            if (err){
+                console.log(err);
+            }
+            var coord1 = result[0].coord.split(",");
+            var coord2 = coord.split(",");
+            var tags1 = result[0].tags.split(",");
+            var tags2 = tags.split(",");
+            var commonTags = tags1.filter(value => -1 !== tags2.indexOf(value));
+            matchRating[j] = (getDistance(coord1[0], coord1[1], coord2[0], coord2[1]));
+            matchRating[j] -= commonTags.length * 10;
+            matchRating[j] += Math.abs(age - result[0].age) * 5;
+            matchRating[j] -= result[0].fame * 0.001;
+            j++;
         });
     }
+    setTimeout(() => {
+        var sorted = sort_order(matchRating);
+        for (i = 0; i < sorted.length; i++) {
+            newArray.push(people[2 * sorted[i]]);
+            newArray.push(people[(2 * sorted[i]) + 1]);
+        }
+        console.log("newArray", newArray);
+        return (newArray);
+    }, 50);
 };
