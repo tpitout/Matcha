@@ -7,81 +7,86 @@
     </ul>
 </div>
 <br><br><br>
-<h1>USERNAME: </h1>
-<h2>
-    <%= uname %>
-</h2>
-<h1>NAME: </h1>
-<h2>
-    <%= name %>
-</h2>
-<h1>FAME: </h1>
-<h2>
-    <%= fame %>
-</h2>
-<h1>AGE: </h1>
-<h2>
-    <%= age %>
-</h2>
-<h1>GENDER: </h1>
-<h2>
-    <%= gender %>
-</h2>
-<h1>STATUS: </h1>
-<% if (online == "online") { %>
-<h2 style="color:limegreen;font-weight:bold;">
-    <%= online %>
-</h2>
-<% } else { %>
-<h2 style="color:red;font-weight:bold;">
-    <%= online %> Last Online:
-    <%= lonline %>
-</h2>
-<% } %>
-<form class="title_2" action="/like" method="POST">
-    <div id="ck-button">
-        <label>
-            <input type="checkbox" value="1" name="like" onclick="{this.form.submit()}"><span>LIKE</span>
-        </label>
-    </div>
-</form>
-<div class="title_1">
-    <h1>
-        <%= tags %>
-    </h1>
-</div>
-<div class="title_1">
-    <h1>
-        <%= bio %>
-    </h1>
-</div>
-<% if (chat > 0) { %>
-<div class="title_1">
-    <h1>CHAT</h1>
-    <% for (i = 0; i < chatlog.length; i++) { %>
+
+<div class="mainlay">
+    <%include leftpanel %>
+    <% include rightpanel %>
+    <h1>USERNAME: </h1>
     <h2>
-      <%= sender[i] %>: <%= chatlog[i] %>
+        <%= uname %>
+    </h2>
+    <h1>NAME: </h1>
+    <h2>
+        <%= name %>
+    </h2>
+    <h1>FAME: </h1>
+    <h2>
+        <%= fame %>
+    </h2>
+    <h1>AGE: </h1>
+    <h2>
+        <%= age %>
+    </h2>
+    <h1>GENDER: </h1>
+    <h2>
+        <%= gender %>
+    </h2>
+    <h1>STATUS: </h1>
+    <% if (online == "online") { %>
+    <h2 style="color:limegreen;font-weight:bold;">
+        <%= online %>
+    </h2>
+    <% } else { %>
+    <h2 style="color:red;font-weight:bold;">
+        <%= online %> Last Online:
+        <%= lonline %>
     </h2>
     <% } %>
+    <form class="title_2" action="/like" method="POST">
+        <div id="ck-button">
+            <label>
+                <input type="checkbox" value="1" name="like" onclick="{this.form.submit()}"><span>LIKE</span>
+            </label>
+        </div>
+    </form>
+    <div class="title_1">
+        <h1>
+            <%= tags %>
+        </h1>
+    </div>
+    <div class="title_1">
+        <h1>
+            <%= bio %>
+        </h1>
+    </div>
+    <% if (chat > 0) { %>
+    <div class="title_1">
+        <h1>CHAT</h1>
+        <% for (i = 0; i < chatlog.length; i++) { %>
+        <h2>
+          <%= sender[i] %>: <%= chatlog[i] %>
+        </h2>
+        <% } %>
+    </div>
+    <form class="title_2" action="/chat" method="POST">
+        <input type="text" name="chat_1" placeholder="Say Something">
+        <input type="submit" value="submit">
+    </form>
+    <% } %>
+    <br><br>
+    <form class="title_2" action="/report" method="POST">
+        <div id="ck-button">
+            <label>
+                <input type="checkbox" value="1" name="report" onclick="{this.form.submit()}"><span>REPORT ACCOUNT</span>
+            </label>
+        </div>
+    </form>
+    <form class="title_2" action="/block" method="POST">
+        <div id="ck-button">
+            <label>
+                <input type="checkbox" value="1" name="block" onclick="{this.form.submit()}"><span>BLOCK</span>
+            </label>
+        </div>
+    </form>
 </div>
-<form class="title_2" action="/chat" method="POST">
-    <input type="text" name="chat_1" placeholder="Say Something">
-    <input type="submit" value="submit">
-</form>
-<% } %>
-<br><br>
-<form class="title_2" action="/report" method="POST">
-    <div id="ck-button">
-        <label>
-            <input type="checkbox" value="1" name="report" onclick="{this.form.submit()}"><span>REPORT ACCOUNT</span>
-        </label>
-    </div>
-</form>
-<form class="title_2" action="/block" method="POST">
-    <div id="ck-button">
-        <label>
-            <input type="checkbox" value="1" name="block" onclick="{this.form.submit()}"><span>BLOCK</span>
-        </label>
-    </div>
-</form>
 <br><br><br>

@@ -1,0 +1,26 @@
+<div class="rightpanel">
+        <h1 style="margin-bottom: -40px;">CHATS</h1>
+        <h5>_____________________</h5>
+        <div class="verscroll">
+          <% for(i = 0; i < log.length; i += 2) { %>
+          <% var id = log[i + 1]; %>
+          <a href="http://localhost:8888/user/usr=<%= id %>">
+            <h2>
+              <%= log[i] %>
+            </h2>
+          </a>
+          <% } %>
+        </div>
+        <h1 style="margin-bottom: -40px;">PAGE VIEWS</h1>
+        <h5>_____________________</h5>
+        <div class="verscroll">
+          <% for (i = 0; i < visits.length; i += 2) { %>
+            <% var id = visits[i + 1]; %>
+          <a href="http://localhost:8888/user/usr=<%= id %>">
+            <h2>
+              <%= visits[i] %>
+            </h2>
+          </a>
+          <% } %>
+        </div>
+      </div>

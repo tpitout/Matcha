@@ -1,0 +1,26 @@
+<div class="leftpanel">
+        <h1 style="margin-bottom: -40px;">CONNECTED</h1>
+    <h5>_____________________</h5>
+    <div class="verscroll" style="direction:rtl;margin-left:10px;">
+      <% for (i = 0; i < uliked.length; i += 2) { %>
+        <% var id = uliked[i + 1]; %>
+      <a href="http://localhost:8888/user/usr=<%=  id  %>">
+        <h5>
+          <%= uliked[i] %>
+        </h5>
+      </a>
+      <% } %>
+    </div>
+    <h1 style="margin-bottom: -40px;">VISIT HISTORY</h1>
+    <h5>_____________________</h5><br>
+    <div class="verscroll" style="direction:rtl;height:200px;">
+      <% for (i = 0; i < visithis.length; i += 2) { %>
+        <% var id = visithis[i + 1]; %>
+      <a href="http://localhost:8888/user/usr=<%=  id  %>">
+        <h5>
+          <%= visithis[i] %>
+        </h5>
+      </a>
+      <% } %>
+    </div>
+  </div>
