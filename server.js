@@ -106,6 +106,14 @@ con.connect(function (err) {
                 }
                 console.log(green + "TABLE CREATED  :   \x1b[33m LIKES \x1b[0m");
             });
+            var sql = "CREATE TABLE block (`id` INT AUTO_INCREMENT PRIMARY KEY, `user_id` INT(5), `blockee` INT(5))";   ////////////////////////////////////////////////
+            con.query(sql, function (err, result) {
+                if (err) {
+                    console.log(err);
+                }
+                console.log(green + "TABLE CREATED  :   \x1b[33m BLOCK \x1b[0m");
+            });
+
 
         });
     });
@@ -143,7 +151,7 @@ app.post("/", urlencodedParser, function (req, res) {
                         if (result) {
                             bcrypt.compare(req.body.upsw, result[0].password, (err, response) => {
                                 if (response == true) {
-                                    if (verified){
+                                    if (verified) {
                                         corrLog = 2;
                                         console.log(green + " Successfully Logged in! \x1b[0m ");
                                         con.query("UPDATE `maindata`.`userdata` SET `online` = ? WHERE `username` = ?", ["online", req.body.uname], function (err, result, fields) {});
@@ -304,12 +312,12 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
             var psw = (req.body.psw) ? bcrypt.hash(req.body.psw, 8, (err, hash)) : res[0].password;
             var code = evaluateCode(req.body.gender, req.body.pref);
             if (pos) {
-                ipInfo ((err, cLoc) => {
+                ipInfo((err, cLoc) => {
                     con.query('UPDATE `maindata`.`userdata` SET `coord` = ? WHERE `token` = ?', [cLoc.loc, token], function (err, r1, fields) {});
-                    });
+                });
             };
             con.query('UPDATE `maindata`.`userdata` SET  `code` = ?, `bio` = ?, `tags` = ?, `password` = ?, `email` = ?, `surname` = ?, `name` = ?, `username` = ?, `age` = ? WHERE `token` = ?', [code, bio, tags, psw, email, sname, fname, uname, age, token], (err, result, fields) => {
-                if (err){
+                if (err) {
                     console.log("ERROR: ", err);
                 }
                 res1.redirect("/");
@@ -351,87 +359,87 @@ app.get("/profile_setup.mp3/:token", function (req, res) {
 });
 
 app.get("/user/:user_id", function (req, res) {
-  if (corrLog == 2) {
-    console.log("\x1b[1m \x1b[46m =======  USER  ======= \x1b[0m");
-    var id = req.params.user_id;
-    id = id.slice(4);
-    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [id], (err, result, fields) => {
-        if (result.length == 1) {
-            var name = result[0].name;
-            var uname = result[0].username;
-            var gender = (result[0].code >= 1000) ? "Female" : "Male";
-            var bio = result[0].bio;
-            var fame = result[0].fame + 1;
-            var online = result[0].online;
-            var lonline = result[0].lonline;
-            var age = result[0].age;
-            con.query('INSERT INTO `maindata`.`visitors` (`user_id`, `viewer_id`) VALUES (?,?)', [id, req.session.uid], function (err, result, fields) {});
-            con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `id` = ?', [fame, id], (err, result, fields) => {
-                console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
-            });
-            req.session.viewer = id;
-            var names = [req.session.uid, req.session.viewer];
-            names.sort();
-            con.query('SELECT * FROM `maindata`.`chat` WHERE `correspondence` = ? ', [names[0] + "-" + names[1]], (err, re, fields) => {
-                var chatlog = [];
-                var sender = [];
-                if (re) {
-                    for (i = 0; i < re.length; i++) {
-                        con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [re[i].user_id], (err, result, fields) => {
-                            sender.push(result[0].username);
-                        });
-                        chatlog.push(re[i].message);
-                    }
-                }
-                console.log(green + lonline);
-                var f1 = "";
-                var f2 = "";
-                var chat = 0;
-                con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, reslt, fields) => {
-                    if (reslt) {
-                        for (i = 0; i < reslt.length; i++) {
-                            if (reslt[i].liked == req.session.viewer) {
-                                f1 = "yes";
-                            }
+    if (corrLog == 2) {
+        console.log("\x1b[1m \x1b[46m =======  USER  ======= \x1b[0m");
+        var id = req.params.user_id;
+        id = id.slice(4);
+        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [id], (err, result, fields) => {
+            if (result.length == 1) {
+                var name = result[0].name;
+                var uname = result[0].username;
+                var gender = (result[0].code >= 1000) ? "Female" : "Male";
+                var bio = result[0].bio;
+                var fame = result[0].fame + 1;
+                var online = result[0].online;
+                var lonline = result[0].lonline;
+                var age = result[0].age;
+                con.query('INSERT INTO `maindata`.`visitors` (`user_id`, `viewer_id`) VALUES (?,?)', [id, req.session.uid], function (err, result, fields) {});
+                con.query('UPDATE `maindata`.`userdata` SET `fame` = ? WHERE `id` = ?', [fame, id], (err, result, fields) => {
+                    console.log("👀   Fame Updated \x1b[1m +10 \x1b[0m");
+                });
+                req.session.viewer = id;
+                var names = [req.session.uid, req.session.viewer];
+                names.sort();
+                con.query('SELECT * FROM `maindata`.`chat` WHERE `correspondence` = ? ', [names[0] + "-" + names[1]], (err, re, fields) => {
+                    var chatlog = [];
+                    var sender = [];
+                    if (re) {
+                        for (i = 0; i < re.length; i++) {
+                            con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [re[i].user_id], (err, result, fields) => {
+                                sender.push(result[0].username);
+                            });
+                            chatlog.push(re[i].message);
                         }
                     }
-                    con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.viewer], (err, reslt2, fields) => {
-                        if (reslt2) {
-                            for (i = 0; i < reslt2.length; i++) {
-                                if (reslt2[i].liked == req.session.uid) {
-                                    f2 = "yes";
+                    console.log(green + lonline);
+                    var f1 = "";
+                    var f2 = "";
+                    var chat = 0;
+                    con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, reslt, fields) => {
+                        if (reslt) {
+                            for (i = 0; i < reslt.length; i++) {
+                                if (reslt[i].liked == req.session.viewer) {
+                                    f1 = "yes";
                                 }
                             }
                         }
-                        if ((f1 == "yes") && (f2 == "yes")) {
-                            chat = 1;
-                        } else {
-                            chat = 0;
-                        }
-                        setTimeout(() => {
-                            res.render("user", {
-                                gender,
-                                sender,
-                                id,
-                                name,
-                                uname,
-                                bio,
-                                fame,
-                                chatlog,
-                                online,
-                                lonline,
-                                chat,
-                                age
-                            });
-                        }, 500);
+                        con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.viewer], (err, reslt2, fields) => {
+                            if (reslt2) {
+                                for (i = 0; i < reslt2.length; i++) {
+                                    if (reslt2[i].liked == req.session.uid) {
+                                        f2 = "yes";
+                                    }
+                                }
+                            }
+                            if ((f1 == "yes") && (f2 == "yes")) {
+                                chat = 1;
+                            } else {
+                                chat = 0;
+                            }
+                            setTimeout(() => {
+                                res.render("user", {
+                                    gender,
+                                    sender,
+                                    id,
+                                    name,
+                                    uname,
+                                    bio,
+                                    fame,
+                                    chatlog,
+                                    online,
+                                    lonline,
+                                    chat,
+                                    age
+                                });
+                            }, 10);
+                        });
                     });
                 });
-            });
-        }
-    });
-  } else {
-    res.redirect("/");
-  }
+            }
+        });
+    } else {
+        res.redirect("/");
+    }
 });
 
 app.post("/chat", urlencodedParser, function (req, res) {
@@ -452,6 +460,12 @@ app.post("/like", urlencodedParser, function (req, res) {
             con.query('DELETE FROM `maindata`.`likes` WHERE `user_id` = ? AND `liked` = ?', [req.session.uid, req.session.viewer], function (err, result, fields) {});
         }
     });
+    res.redirect("/user/usr=" + req.session.viewer);
+});
+
+app.post("/block", urlencodedParser, function (req, res) {
+    console.log("\x1b[1m \x1b[46m =======  BLOCK  ======= \x1b[0m");
+    con.query('INSERT INTO `maindata`.`block` (`user_id`, `blockee`) VALUES (?,?)', [req.session.uid, req.session.viewer], function (err, result, fields) {});
     res.redirect("/user/usr=" + req.session.viewer);
 });
 
@@ -482,87 +496,110 @@ app.get("/main.txt", function (req, res) {
                 var uid = result[0].id;
                 req.session.uid = uid;
                 con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
-                    var ppl = [];
-                    if (resl) {
-                        for (i = 0; i < resl.length; i++) {
-                            if (compatibleCheck(code, resl[i].code)) {
-                                ppl.push(resl[i].id);
-                                ppl.push(resl[i].username);
-                            }
+                    con.query('SELECT * FROM `maindata`.`block` WHERE `user_id` = ?', [uid], (err, v, fields) => {
+                        var blockee = [];
+                        for (i = 0; i < v.length; i++) {
+                            blockee.push(v[i].blockee);
                         }
-                    }
-                    con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
-                        var log = [];
-                        if (respo.length > 0) {
-                            for (i = 0; i < respo.length; i++) {
-                                if (respo[i].correspondence.includes(uid)) {
-                                    if (respo[i].user_id != uid) {
-                                        log.push(respo[i].user_id);
-                                        log.push(respo[i].message);
+                        var ppl = [];
+
+                        if (blockee.length > 0) {
+                            console.log("---------------------");
+                            console.log(blockee);
+                            if (resl) {
+                                for (i = 0; i < resl.length; i++) {
+                                    if (!blockee.includes(resl[i].id)) {
+                                        if ((compatibleCheck(code, resl[i].code))) {
+                                            ppl.push(resl[i].id);
+                                            ppl.push(resl[i].username);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            console.log("+++++++++++++++++++++");
+                            if (resl) {
+                                for (i = 0; i < resl.length; i++) {
+                                    if (compatibleCheck(code, resl[i].code)) {
+                                        ppl.push(resl[i].id);
+                                        ppl.push(resl[i].username);
                                     }
                                 }
                             }
                         }
-                        log.reverse();
-                        con.query('SELECT * FROM `maindata`.`visitors` WHERE `user_id` = ?', [uid], (err, respon, fields) => {
-                            var visits = [];
-                            if (respon) {
-                                for (i = 0; i < respon.length; i++) {
-                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
-                                        visits.push(result[0].username);
-                                        visits.push(result[0].id);
-                                    });
+                        console.log(ppl);
+                        con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
+                            var log = [];
+                            if (respo.length > 0) {
+                                for (i = 0; i < respo.length; i++) {
+                                    if (respo[i].correspondence.includes(uid)) {
+                                        if (respo[i].user_id != uid) {
+                                            log.push(respo[i].user_id);
+                                            log.push(respo[i].message);
+                                        }
+                                    }
                                 }
                             }
-                            var u1 = [];
-                            var u2 = [];
-                            var uliked = [];
-                            con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
-                                for (i = 0; i < resul.length; i++) {
-                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
-                                        u1.push(result[0].username);
-                                        u1.push(result[0].id);
-                                    });
-                                }
-                                con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
-                                    for (i = 0; i < reslt.length; i++) {
-                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
-                                            u2.push(result[0].username);
-                                            u2.push(result[0].id);
+                            log.reverse();
+                            con.query('SELECT * FROM `maindata`.`visitors` WHERE `user_id` = ?', [uid], (err, respon, fields) => {
+                                var visits = [];
+                                if (respon) {
+                                    for (i = 0; i < respon.length; i++) {
+                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
+                                            visits.push(result[0].username);
+                                            visits.push(result[0].id);
                                         });
                                     }
-                                    setTimeout(() => {
-                                        for (i = 0; i < u1.length; i++) {
-                                            if (u2.includes(u1[i])) {
-                                                uliked.push(u1[i]);
-                                            }
-                                        }
-                                    }, 100);
-                                    var visithis = [];
-                                    con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
-                                        for (i = 0; i < j.length; i++) {
-                                            con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
-                                                visithis.push(result[0].username);
-                                                visithis.push(result[0].id);
+                                }
+                                var u1 = [];
+                                var u2 = [];
+                                var uliked = [];
+                                con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
+                                    for (i = 0; i < resul.length; i++) {
+                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
+                                            u1.push(result[0].username);
+                                            u1.push(result[0].id);
+                                        });
+                                    }
+                                    con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
+                                        for (i = 0; i < reslt.length; i++) {
+                                            con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
+                                                u2.push(result[0].username);
+                                                u2.push(result[0].id);
                                             });
                                         }
-                                        visithis.reverse();
                                         setTimeout(() => {
-                                            console.log(visits);
-                                            res.render("main", {
-                                                uname,
-                                                fname,
-                                                sname,
-                                                email,
-                                                pref,
-                                                ppl,
-                                                log,
-                                                visits,
-                                                uliked,
-                                                visithis,
-                                                token
-                                            });
+                                            for (i = 0; i < u1.length; i++) {
+                                                if (u2.includes(u1[i])) {
+                                                    uliked.push(u1[i]);
+                                                }
+                                            }
                                         }, 100);
+                                        var visithis = [];
+                                        con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
+                                            for (i = 0; i < j.length; i++) {
+                                                con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
+                                                    visithis.push(result[0].username);
+                                                    visithis.push(result[0].id);
+                                                });
+                                            }
+                                            visithis.reverse();
+                                            setTimeout(() => {
+                                                res.render("main", {
+                                                    uname,
+                                                    fname,
+                                                    sname,
+                                                    email,
+                                                    pref,
+                                                    ppl,
+                                                    log,
+                                                    visits,
+                                                    uliked,
+                                                    visithis,
+                                                    token
+                                                });
+                                            }, 100);
+                                        });
                                     });
                                 });
                             });
