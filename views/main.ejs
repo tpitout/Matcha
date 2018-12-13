@@ -31,8 +31,9 @@
     <h1 style="margin-bottom: -40px;">CONNECTED</h1>
     <h5>_____________________</h5>
     <div class="verscroll" style="direction:rtl;margin-left:10px;">
-      <% for (i = 0; i < uliked.length; i++) { %>
-      <a href="http://localhost:8888/user/usr=<%=  uliked[i]  %>">
+      <% for (i = 0; i < uliked.length; i += 2) { %>
+        <% var id = uliked[i + 1]; %>
+      <a href="http://localhost:8888/user/usr=<%=  id  %>">
         <h5>
           <%= uliked[i] %>
         </h5>
@@ -42,8 +43,9 @@
     <h1 style="margin-bottom: -40px;">VISIT HISTORY</h1>
     <h5>_____________________</h5><br>
     <div class="verscroll" style="direction:rtl;height:200px;">
-      <% for (i = 0; i < visithis.length; i++) { %>
-      <a href="http://localhost:8888/user/usr=<%=  visithis[i]  %>">
+      <% for (i = 0; i < visithis.length; i += 2) { %>
+        <% var id = visithis[i + 1]; %>
+      <a href="http://localhost:8888/user/usr=<%=  id  %>">
         <h5>
           <%= visithis[i] %>
         </h5>
@@ -68,8 +70,9 @@
     <h1 style="margin-bottom: -40px;">PAGE VIEWS</h1>
     <h5>_____________________</h5>
     <div class="verscroll">
-      <% for (i = 0; i < visits.length; i++) { %>
-      <a href="http://localhost:8888/user/usr=<%= visits[i] %>">
+      <% for (i = 0; i < visits.length; i += 2) { %>
+        <% var id = visits[i + 1]; %>
+      <a href="http://localhost:8888/user/usr=<%= id %>">
         <h2>
           <%= visits[i] %>
         </h2>

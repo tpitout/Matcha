@@ -507,8 +507,9 @@ app.get("/main.txt", function (req, res) {
                             var visits = [];
                             if (respon) {
                                 for (i = 0; i < respon.length; i++) {
-                                    con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
+                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
                                         visits.push(result[0].username);
+                                        visits.push(result[0].id);
                                     });
                                 }
                             }
@@ -516,16 +517,17 @@ app.get("/main.txt", function (req, res) {
                             var u2 = [];
                             var uliked = [];
                             con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
-
                                 for (i = 0; i < resul.length; i++) {
-                                    con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
+                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
                                         u1.push(result[0].username);
+                                        u1.push(result[0].id);
                                     });
                                 }
                                 con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
                                     for (i = 0; i < reslt.length; i++) {
-                                        con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
+                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
                                             u2.push(result[0].username);
+                                            u2.push(result[0].id);
                                         });
                                     }
                                     setTimeout(() => {
@@ -538,12 +540,14 @@ app.get("/main.txt", function (req, res) {
                                     var visithis = [];
                                     con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
                                         for (i = 0; i < j.length; i++) {
-                                            con.query('SELECT `username` FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
+                                            con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
                                                 visithis.push(result[0].username);
+                                                visithis.push(result[0].id);
                                             });
                                         }
                                         visithis.reverse();
                                         setTimeout(() => {
+                                            console.log(visits);
                                             res.render("main", {
                                                 uname,
                                                 fname,
