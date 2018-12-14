@@ -14,7 +14,7 @@
     npm install multer              --save
     npm install ipinfo              --save
 
-    Run XAMPP or MAMP APACHE/MySQL
+    Run XAMPP or MAMP APACHE/MySQLa
 */
 
 const express = require('express');
@@ -221,7 +221,6 @@ app.post("/new_pass/:token", urlencodedParser, (req, res) => {
     var token = req.params.token.slice(6);
     if (errors.length == 0) {
         bcrypt.hash(req.body.upsw, 8, (err, hash) => {
-            console.log(token + "  " + hash);
             if (err) {
                 return console.log(red + " UNABLE TO HASH \x1b[0m", err);
             }
@@ -263,7 +262,6 @@ app.post("/register", urlencodedParser, function (req, res) {
                     return;
                 }
                 if (results.length == 0) {
-                    console.log(req.body.email);
                     con.query('SELECT * FROM `maindata`.`userdata` WHERE `email` = ?', [req.body.uemail], (err, results, fields) => {
                         if (err) {
                             console.log(red + err + " \x1b[0m");
@@ -574,6 +572,7 @@ app.get("/user/:user_id", function (req, res) {
                                                             }
                                                         }
                                                     }
+        
                                                     con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.viewer], (err, reslt2, fields) => {
                                                         if (err) {
                                                             console.log(red + err + " \x1b[0m");
@@ -591,27 +590,40 @@ app.get("/user/:user_id", function (req, res) {
                                                         } else {
                                                             chat = 0;
                                                         }
-                                                        setTimeout(() => {
-                                                            res.render("user", {
-                                                                log,
-                                                                visits,
-                                                                uliked,
-                                                                visithis,
-                                                                tags,
-                                                                gender,
-                                                                sender,
-                                                                id,
-                                                                name,
-                                                                uname,
-                                                                bio,
-                                                                fame,
-                                                                chatlog,
-                                                                online,
-                                                                lonline,
-                                                                chat,
-                                                                age
-                                                            });
-                                                        }, 500);
+                                                        var likes = [];
+                                                        con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, x, fields) => {
+                                                            if (x) {
+                                                                for (i = 0;i < x.length; i++)
+                                                                {
+                                                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [x[i].user_id], (err, x2, fields) => {
+                                                                        likes.push(x2[0].username);
+                                                                        likes.push(x2[0].id);
+                                                                    });
+                                                                }
+                                                            }
+                                                            setTimeout(() => {
+                                                                res.render("user", {
+                                                                    log,
+                                                                    visits,
+                                                                    uliked,
+                                                                    visithis,
+                                                                    tags,
+                                                                    gender,
+                                                                    sender,
+                                                                    id,
+                                                                    name,
+                                                                    uname,
+                                                                    bio,
+                                                                    fame,
+                                                                    chatlog,
+                                                                    online,
+                                                                    lonline,
+                                                                    chat,
+                                                                    age,
+                                                                    likes
+                                                                });
+                                                            }, 100);
+                                                        });
                                                     });
                                                 });
                                             });
@@ -714,153 +726,174 @@ app.get("/main.txt", function (req, res) {
                 console.log(red + err + " \x1b[0m");
                 return;
             }
-            if (result.length == 1) {
-                var uname = result[0].username;
-                var fname = result[0].name;
-                var sname = result[0].surname;
-                var email = result[0].email;
-                var pref = result[0].pref;
-                var token = result[0].token;
-                var code = result[0].code;
-                var uid = result[0].id;
-                var age = result[0].age;
-                var coord = result[0].coord;
-                var tags = result[0].tags;
-                req.session.uid = uid;
-                con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
+            var uname = result[0].username;
+            var fname = result[0].name;
+            var sname = result[0].surname;
+            var email = result[0].email;
+            var pref = result[0].pref;
+            var token = result[0].token;
+            var code = result[0].code;
+            var uid = result[0].id;
+            var age = result[0].age;
+            var coord = result[0].coord;
+            var tags = result[0].tags;
+            var minAge = req.query.agemin ? req.query.agemin : 18;
+            var maxAge = req.query.agemax ? req.query.agemax : 1000;
+            var filterTags = req.query.filtertags ? req.query.filtertags : null;
+            var maxDistance = req.query.distance ? req.query.distance : 100000;
+            var minFame = req.query.minfame ? req.query.minfame : 0;
+            console.log(minAge + " : " + maxAge + " : " + filterTags + " : " + maxDistance + " : " + minFame);
+            req.session.uid = uid;
+            con.query('SELECT * FROM `maindata`.`userdata` WHERE NOT `username` = ?', [uname], (err, resl, fields) => {
+                if (err) {
+                    console.log(red + err + " \x1b[0m");
+                    return;
+                }
+                con.query('SELECT * FROM `maindata`.`block` WHERE `user_id` = ?', [uid], (err, v, fields) => {
                     if (err) {
                         console.log(red + err + " \x1b[0m");
                         return;
                     }
-                    con.query('SELECT * FROM `maindata`.`block` WHERE `user_id` = ?', [uid], (err, v, fields) => {
+                    var blockee = [];
+                    for (i = 0; i < v.length; i++) {
+                        blockee.push(v[i].blockee);
+                    }
+                    var ppl = [];
+                    if (resl) {
+                        for (i = 0; i < resl.length; i++) {
+                            if ((blockee.length && !blockee.includes(resl[i].id)) || !blockee.length) {
+                                if (tagCheck(resl[i], coord, minAge, maxAge, filterTags, maxDistance, minFame) && (compatibleCheck(code, resl[i].code))) {
+                                    ppl.push(resl[i].id);
+                                    ppl.push(resl[i].username);
+                                }
+                            }
+                        }
+                    }
+                    con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
                         if (err) {
                             console.log(red + err + " \x1b[0m");
                             return;
                         }
-                        var blockee = [];
-                        for (i = 0; i < v.length; i++) {
-                            blockee.push(v[i].blockee);
-                        }
-                        var ppl = [];
-                        if (blockee.length > 0) {
-                            if (resl) {
-                                for (i = 0; i < resl.length; i++) {
-                                    if (!blockee.includes(resl[i].id)) {
-                                        if ((compatibleCheck(code, resl[i].code))) {
-                                            ppl.push(resl[i].id);
-                                            ppl.push(resl[i].username);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            if (resl) {
-                                for (i = 0; i < resl.length; i++) {
-                                    if (compatibleCheck(code, resl[i].code)) {
-                                        ppl.push(resl[i].id);
-                                        ppl.push(resl[i].username);
+                        var log = [];
+                        if (respo.length > 0) {
+                            for (i = 0; i < respo.length; i++) {
+                                if (respo[i].correspondence.includes(uid)) {
+                                    if (respo[i].user_id != uid && !(blockee.includes(parseInt(respo[i].user_id)))) {
+                                        log.push(respo[i].user_id);
+                                        log.push(respo[i].message);
                                     }
                                 }
                             }
                         }
-                        con.query('SELECT * FROM `maindata`.`chat`', (err, respo, fields) => {
+                        log.reverse();
+                        con.query('SELECT * FROM `maindata`.`visitors` WHERE `user_id` = ?', [uid], (err, respon, fields) => {
                             if (err) {
                                 console.log(red + err + " \x1b[0m");
                                 return;
                             }
-                            var log = [];
-                            if (respo.length > 0) {
-                                for (i = 0; i < respo.length; i++) {
-                                    if (respo[i].correspondence.includes(uid)) {
-                                        if (respo[i].user_id != uid && !(blockee.includes(parseInt(respo[i].user_id)))) {
-                                            log.push(respo[i].user_id);
-                                            log.push(respo[i].message);
-                                        }
-                                    }
-                                }
-                            }
-                            log.reverse();
-                            con.query('SELECT * FROM `maindata`.`visitors` WHERE `user_id` = ?', [uid], (err, respon, fields) => {
-                                if (err) {
-                                    console.log(red + err + " \x1b[0m");
-                                    return;
-                                }
-                                var visits = [];
-                                if (respon) {
-                                    for (i = 0; i < respon.length; i++) {
-                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
-                                            if (err) {
-                                                console.log(red + err + " \x1b[0m");
-                                                return;
-                                            }
-                                            if (!blockee.includes(result[0].id)) {
-                                                visits.push(result[0].username);
-                                                visits.push(result[0].id);
-                                            }
-                                        });
-                                    }
-                                }
-                                var u1 = [];
-                                var u2 = [];
-                                var uliked = [];
-                                con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
-                                    if (err) {
-                                        console.log(red + err + " \x1b[0m");
-                                        return;
-                                    }
-                                    for (i = 0; i < resul.length; i++) {
-                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
-                                            if (err) {
-                                                console.log(red + err + " \x1b[0m");
-                                                return;
-                                            }
-                                            u1.push(result[0].username);
-                                            u1.push(result[0].id);
-                                        });
-                                    }
-                                    con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
+                            var visits = [];
+                            if (respon) {
+                                for (i = 0; i < respon.length; i++) {
+                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [respon[i].viewer_id], (err, result, fields) => {
                                         if (err) {
                                             console.log(red + err + " \x1b[0m");
                                             return;
                                         }
-                                        for (i = 0; i < reslt.length; i++) {
-                                            con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
-                                                if (err) {
-                                                    console.log(red + err + " \x1b[0m");
-                                                    return;
-                                                }
-                                                u2.push(result[0].username);
-                                                u2.push(result[0].id);
-                                            });
+                                        if (!blockee.includes(result[0].id)) {
+                                            visits.push(result[0].username);
+                                            visits.push(result[0].id);
                                         }
-                                        setTimeout(() => {
-                                            for (i = 0; i < u1.length; i++) {
-                                                if (u2.includes(u1[i])) {
-                                                    uliked.push(u1[i]);
-                                                }
-                                            }
-                                        }, 100);
-                                        var visithis = [];
-                                        con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
+                                    });
+                                }
+                            }
+                            var u1 = [];
+                            var u2 = [];
+                            var uliked = [];
+                            con.query('SELECT * FROM `maindata`.`likes` WHERE `user_id` = ?', [req.session.uid], (err, resul, fields) => {
+                                if (err) {
+                                    console.log(red + err + " \x1b[0m");
+                                    return;
+                                }
+                                for (i = 0; i < resul.length; i++) {
+                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [resul[i].liked], (err, result, fields) => {
+                                        if (err) {
+                                            console.log(red + err + " \x1b[0m");
+                                            return;
+                                        }
+                                        u1.push(result[0].username);
+                                        u1.push(result[0].id);
+                                    });
+                                }
+                                con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, reslt, fields) => {
+                                    if (err) {
+                                        console.log(red + err + " \x1b[0m");
+                                        return;
+                                    }
+                                    for (i = 0; i < reslt.length; i++) {
+                                        console.log(reslt[i].user_id);
+                                        con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [reslt[i].user_id], (err, result, fields) => {
                                             if (err) {
                                                 console.log(red + err + " \x1b[0m");
                                                 return;
                                             }
-                                            for (i = 0; i < j.length; i++) {
-                                                con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
-                                                    if (err) {
-                                                        console.log(red + err + " \x1b[0m");
-                                                        return;
-                                                    }
-                                                    if (!blockee.includes(result[0].id)) {
-                                                        visithis.push(result[0].username);
-                                                        visithis.push(result[0].id);
-                                                    }
-                                                });
+                                            u2.push(result[0].username);
+                                            u2.push(result[0].id);
+                                        });
+                                    }
+                                    console.log("U1 :"+u1);
+                                    console.log("U2 :"+u2);
+                                    setTimeout(() => {
+                                        for (i = 0; i < u1.length; i++) {
+                                            if (u2.includes(u1[i])) {
+                                                                                                    
+                                                uliked.push(u1[i]);
                                             }
-                                            visithis.reverse();
-                                            setTimeout(() => {
-                                                // ppl = match_sort(ppl, coord, age, tags);
+                                        }
+                                    }, 100);
+                                    var visithis = [];
+                                    con.query('SELECT * FROM `maindata`.`visitors` WHERE `viewer_id` = ?', [req.session.uid], (err, j, fields) => {
+                                        if (err) {
+                                            console.log(red + err + " \x1b[0m");
+                                            return;
+                                        }
+                                        for (i = 0; i < j.length; i++) {
+                                            con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [j[i].user_id], (err, result, fields) => {
+                                                if (err) {
+                                                    console.log(red + err + " \x1b[0m");
+                                                    return;
+                                                }
+                                                if (!blockee.includes(result[0].id)) {
+                                                    visithis.push(result[0].username);
+                                                    visithis.push(result[0].id);
+                                                }
+                                            });
+                                        }
+                                        visithis.reverse();
+                                        var likes = [];
+                                        con.query('SELECT * FROM `maindata`.`likes` WHERE `liked` = ?', [req.session.uid], (err, x, fields) => {
+                                            if (err) {
+                                                console.log(red + err + " \x1b[0m");
+                                                return;
+                                            }
+                                            if (x) {
+                                                for (i = 0;i < x.length; i++)
+                                                {
+                                                    con.query('SELECT * FROM `maindata`.`userdata` WHERE `id` = ?', [x[i].user_id], (err, x2, fields) => {
+                                                        if (err) {
+                                                            console.log(red + err + " \x1b[0m");
+                                                            return;
+                                                        }
+                                                        likes.push(x2[0].username);
+                                                        likes.push(x2[0].id);
+                                                    });
+                                                }
+                                            }
+                                            con.query('SELECT * FROM `maindata`.`userdata`', (err, result, fields) => {
+                                                if (err) {
+                                                    console.log(red + err + " \x1b[0m");
+                                                    return;
+                                                }
+                                                ppl = match_sort(ppl, coord, age, tags, result);
                                                 setTimeout(() => {
                                                     res.render("main", {
                                                         uname,
@@ -873,10 +906,11 @@ app.get("/main.txt", function (req, res) {
                                                         visits,
                                                         uliked,
                                                         visithis,
-                                                        token
+                                                        token,
+                                                        likes
                                                     });
-                                                }, 200)
-                                            }, 200);
+                                                }, 100)
+                                            });
                                         });
                                     });
                                 });
@@ -884,7 +918,7 @@ app.get("/main.txt", function (req, res) {
                         });
                     });
                 });
-            }
+            });
         });
     } else {
         res.redirect("/");
@@ -947,6 +981,22 @@ function compatibleCheck(user1, user2) {
     return (((((u1 >> 2) & (u2 & 3)) >> 1) | (((u1 >> 2) & (u2 & 3)) & 1)) & ((((u2 >> 2) & (u1 & 3)) >> 1) | (((u2 >> 2) & (u1 & 3)) & 1)));
 };
 
+function tagCheck(user, location, minAge, maxAge, filterTags, maxDistance, minFame){
+    var coord1 = user.coord.split(",");
+    var coord2 = location.split(",");
+    var distance = getDistance(coord1[0], coord1[1], coord2[0], coord2[1]);
+    var badTags = [];
+    if (filterTags){
+        var tags1 = user.tags.split(" ");
+        var tags2 = filterTags.split(" ");
+        badTags = tags1.filter(value => -1 !== tags2.indexOf(value));
+    }
+    if (user.age < minAge || user.age > maxAge || distance > maxDistance || badTags.length){
+        return 0;
+    };
+    return 1;
+};
+
 function getDistance(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);
@@ -955,18 +1005,18 @@ function getDistance(lat1,lon1,lat2,lon2) {
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
     var dist = R * c;
     return dist;
-}
+};
 
 function deg2rad(deg) {
     return deg * (Math.PI/180)
-}
+};
 
 function sort_order(array) {
     var length = array.length
     var sorted = [];
     for (i = 0; i < length; i++) {
         sorted.push(i);
-    }
+    };
     for (i = 0; i < length; i++) {
         for (j = 0; j < (length - i - 1); j++) {
             if (array[j] > array[j + 1]) {
@@ -976,43 +1026,36 @@ function sort_order(array) {
                 temp = sorted[j];
                 sorted[j] = sorted[j + 1];
                 sorted[j + 1] = temp;
-            }
-        }
-    }
-    return (sorted);
-}
+            };
+        };
+    };
+    return sorted;
+};
 
-function match_sort(people, coord, age, tags){
+function match_sort(people, coord, age, tags, result){
     var matchRating = [];
     var newArray = [];
-    var j = 0;
+    var k = 0;
     for (i = 0; i < people.length; i += 2) {
-        con.query("SELECT * FROM `maindata`.`userdata` WHERE `id` = ?", [people[i]], (err, result, fields) => {
-            if (err) {
-                console.log(red + err + " \x1b[0m");
-                return;
-            }
-            var coord1 = result[0].coord.split(",");
-            var coord2 = coord.split(",");
-            var tags1 = result[0].tags.split(" ");
-            var tags2 = tags.split(" ");
-            var commonTags = tags1.filter(value => -1 !== tags2.indexOf(value));
-            matchRating[j] = (getDistance(coord1[0], coord1[1], coord2[0], coord2[1]));
-            matchRating[j] -= commonTags.length * 10;
-            matchRating[j] += Math.abs(age - result[0].age) * 5;
-            matchRating[j] -= result[0].fame * 0.001;
-            j++;
-        });
-    }
-    setTimeout(() => {
-        console.log(matchRating);
-        var sorted = sort_order(matchRating);
-        console.log(sorted);
-        for (i = 0; i < sorted.length; i++) {
-            newArray.push(people[2 * sorted[i]]);
-            newArray.push(people[(2 * sorted[i]) + 1]);
-        }
-        console.log(newArray);
-        return (newArray);
-    }, 50);
+        for (j = 0; j < result.length; j++){
+            if (result[j].id == people[i]){
+                var coord1 = result[j].coord.split(",");
+                var coord2 = coord.split(",");
+                var tags1 = result[j].tags.split(" ");
+                var tags2 = tags.split(" ");
+                var commonTags = tags1.filter(value => -1 !== tags2.indexOf(value));
+                matchRating[k] = getDistance(coord1[0], coord1[1], coord2[0], coord2[1]);
+                matchRating[k] -= commonTags.length * 10;
+                matchRating[k] += Math.abs(age - result[j].age) * 5;
+                matchRating[k] -= result[j].fame * 0.001;
+                k++;
+            };
+        };
+    };
+    var sorted = sort_order(matchRating);
+    for (i = 0; i < sorted.length; i++) {
+        newArray.push(people[2 * sorted[i]]);
+        newArray.push(people[(2 * sorted[i]) + 1]);
+    };
+    return newArray;
 };

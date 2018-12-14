@@ -23,4 +23,16 @@
       </a>
       <% } %>
     </div>
+    <h1 style="margin-bottom: -40px;">LIKES</h1>
+    <h5>_____________________</h5><br>
+    <div class="verscroll" style="direction:rtl;height:200px;">
+      <% for (i = 0; i < likes.length; i += 2) { %>
+        <% var id = likes[i + 1]; %>
+      <a href="http://localhost:8888/user/usr=<%=  id  %>">
+        <h5>
+          <%= likes[i] %>
+        </h5>
+      </a>
+      <% } %>
+    </div>
   </div>

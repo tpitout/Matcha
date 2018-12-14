@@ -1,0 +1,30 @@
+<div style="display:none;" class="filter" id="filter">
+<form method="get" action="main.txt">
+    
+    <h2>MIN AGE</h2>
+    <input tyh2e="number" min="18" name="agemin">
+    <h2>MAX AGE</h2>
+    <input type="number" min="18" name="agemax">
+    <h2>TAGS TO EXCLUDE</h2>
+    <input type="text" name="filtertags">
+    <h2>MAX DISTANCE</h2>
+    <input type="number" name="distance" min="0">
+    <h2>MIN FAME</h2>
+    <input type="number" name="minfame">
+    <br><br>
+    <input type="submit">
+</form>
+</div>
+<br>
+<a class="abut" onclick="showDiv()">FILTER</a>
+<br><br>
+<script>
+        function showDiv() {
+            if (document.getElementById('filter').style.display == "none") {
+                document.getElementById('filter').style.display = "block";
+            } else {
+                document.getElementById('filter').style.display = "none";
+            }
+       
+    }
+    </script>

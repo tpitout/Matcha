@@ -2,7 +2,6 @@
 <% include footer %>
 
 <head>
-  <meta http-equiv="refresh" content="9">
 </head>
 <div class="header">
   <ul>
@@ -17,12 +16,7 @@
 
   <div class="middle">
     <br>
-    <div class="filter">
-      <form>
-        <h2>
-        </h2>
-      </form>
-    </div>
+      <% include filter %>
 
     <% for(i = 0; i < ppl.length; i += 2) { %>
     <div class="profile">
@@ -36,4 +30,3 @@
     <% } %>
   </div>
 </div>
-

@@ -24,12 +24,11 @@
         var patt = new RegExp("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,50}$");
         if ((document.getElementById("1").value == document.getElementById("2").value)) {
             if ((patt.test(document.getElementById("1").value))) {
-                console.log("5");
                 swal("SUCCESS", "YOU CAN NOW LOGIN", "success");
                 document.getElementById("form1").submit();
             }
         } else {
-            console.log("Password DOesnt match");
+            console.log("Password Doesnt match");
             swal("ERROR", "DETAILS ARE WRONG", "error");
         }
     };
