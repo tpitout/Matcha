@@ -269,6 +269,7 @@ app.post("/register", urlencodedParser, function (req, res) {
                         }
                         if (results.length == 0) {
                             var pos = req.body.coord;
+                            if (req.body.ufname && req.body.ulname && req.body.uemail) {
                             con.query('INSERT INTO `maindata`.`userdata` (`name`, `surname`, `email`, `username`, `password`, `token`, `pp`, `coord`) VALUES (?,?,?,?,?,?,?,?)', [req.body.ufname, req.body.ulname, req.body.uemail, req.body.uname, hash, token, req.body.myFile, pos], function (err, result, fields) {
                                 if (err) {
                                     console.log(red + err + " \x1b[0m");
@@ -294,6 +295,7 @@ app.post("/register", urlencodedParser, function (req, res) {
                                     });
                                 }
                             });
+                        }
                         } else {
                             console.log(red + 'EMAIL EXISTS IN DATABASE \x1b[0m');
                         }
@@ -344,7 +346,7 @@ app.post("/profile_setup/:token", urlencodedParser, function (req, res1) {
                 }
                 res1.redirect("/");
             });
-        } else {
+        } else if (req.body.bio && req.body.tags && req.body.age){
             var code = evaluateCode(req.body.gender, req.body.pref);
             con.query('UPDATE `maindata`.`userdata` SET `code` = ?, `verified` = ?, `bio` = ?, `tags` = ?, `age` = ? WHERE `token` = ?', [code, 1, req.body.bio, req.body.tags, req.body.age, token], (err, result, fields) => {
                 if (err) {
